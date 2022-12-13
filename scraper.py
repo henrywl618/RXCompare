@@ -24,20 +24,21 @@ actions = ActionChains(driver)
 #     print(e.text)
 
 class DDNSearch:
+
+    def __init__(self):
+        self.base_url = "https://www.discountdrugnetwork.com"
+
     def get_drugnames(self, url, input):
-        driver.get(url)
+        driver.get(self.base_url)
         drugname_input = WebDriverWait(driver, timeout=3).until(lambda d: d.find_element(by=By.CSS_SELECTOR, value='.c-search-input__drug').find_element(By.TAG_NAME, "input"))
         drugname_input.send_keys(input)
         drugname_results = WebDriverWait(driver, timeout=3).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-search-input__drugname'))
-
-        for drug in drugname_results:
-            print(drug.text)
             
         return [drug.text for drug in drugname_results]
 
 
-    def get_drugforms(self, url, drugname, zip):
-        updated_url = f'{url}/get-discount?drugName={drugname}&zip={zip}'
+    def get_drugforms(self, drugname, zip):
+        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
         driver.get(updated_url)
         page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
         drugform_filter = driver.find_element(By.XPATH, '//div[text()="FORM"]//parent::div').find_element(By.XPATH, '//span[@class="ant-select-selection-item"]')
@@ -49,8 +50,8 @@ class DDNSearch:
         print(forms)
         return forms
 
-    def get_doseandqty(self, url, drugname, zip, form):
-        updated_url = f'{url}/get-discount?drugName={drugname}&zip={zip}'
+    def get_doseandqty(self, drugname, zip, form):
+        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
         driver.get(updated_url)
         page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
         filters = driver.find_elements(By.CLASS_NAME, 'ant-select-selection-item')
@@ -70,9 +71,9 @@ class DDNSearch:
         print(output)
         return output
 
-    def get_prices(self, url, drugname, zip, form, dose, qty):
+    def get_prices(self, drugname, zip, form, dose, qty):
         #Load the page
-        updated_url = f'{url}/get-discount?drugName={drugname}&zip={zip}'
+        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
         driver.get(updated_url)
         #Wait for the page to load
         page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
@@ -109,8 +110,12 @@ class DDNSearch:
         print(output)
 
 class WellRxSearch:
-    def get_drugnames(self, url, input):
-        driver.get(url)
+
+    def __init__(self):
+        self.base_url = "https://www.wellrx.com/prescriptions/"
+
+    def get_drugnames(self, input):
+        driver.get(self.base_url)
         drugname_input = WebDriverWait(driver, timeout=3).until(lambda d: d.find_element(by=By.XPATH, value='//input[@id="drugSearchInput"]'))
         drugname_input.send_keys(input)
         drugname_results = WebDriverWait(driver, timeout=3).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='ui-menu-item-wrapper'))
@@ -121,8 +126,8 @@ class WellRxSearch:
         return [drug.text for drug in drugname_results]
 
 
-    def get_drugforms(self, url, drugname, zip):
-        updated_url = f'{url}/prescriptions/{drugname}/{zip}'
+    def get_drugforms(self, drugname, zip):
+        updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
         driver.get(updated_url)
         page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
         driver.save_screenshot("page.png")
@@ -134,8 +139,8 @@ class WellRxSearch:
         print(forms)
         return forms    
 
-    def get_doseandqty(self, url, drugname, zip, form):
-        updated_url = f'{url}/prescriptions/{drugname}/{zip}'
+    def get_doseandqty(self, drugname, zip, form):
+        updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
         driver.get(updated_url)
         page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
         #Find the drug form selection filter and click on it and select the form provided in the argument
@@ -163,8 +168,8 @@ class WellRxSearch:
         print(output)
         return output
 
-    def get_prices(self, url, drugname, zip, form, dose, qty):
-        updated_url = f'{url}/prescriptions/{drugname}/{zip}'
+    def get_prices(self, drugname, zip, form, dose, qty):
+        updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
         driver.get(updated_url)
         page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
         #Find the drug form selection filter and click on it and select the form provided in the argument
@@ -231,12 +236,12 @@ class WellRxSearch:
 # get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'Cream (g)')
 # get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP')
 
-DDNSearch = DDNSearch()
-DDNSearch.get_prices("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP', '50 MCG', '16')
+# DDNSearch = DDNSearch()
+# DDNSearch.get_prices("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP', '50 MCG', '16')
 
-WellRxSearch = WellRxSearch()
-WellRxSearch.get_drugnames("https://www.wellrx.com/prescriptions/", "AMLODIP")
-WellRxSearch.get_drugforms("https://www.wellrx.com/prescriptions/", "FLUTICASONE PROPIONATE", 11416)
-WellRxSearch.get_doseandqty("https://www.wellrx.com/prescriptions/","FLUTICASONE PROPIONATE", 11416, 'Ointment')
-WellRxSearch.get_prices("https://www.wellrx.com/prescriptions/","FLUTICASONE PROPIONATE", 11416, 'Ointment', '0.005 %', '60 grams')
+# WellRxSearch = WellRxSearch()
+# WellRxSearch.get_drugnames("https://www.wellrx.com/prescriptions/", "AMLODIP")
+# WellRxSearch.get_drugforms("https://www.wellrx.com/prescriptions/", "FLUTICASONE PROPIONATE", 11416)
+# WellRxSearch.get_doseandqty("https://www.wellrx.com/prescriptions/","FLUTICASONE PROPIONATE", 11416, 'Ointment')
+# WellRxSearch.get_prices("https://www.wellrx.com/prescriptions/","FLUTICASONE PROPIONATE", 11416, 'Ointment', '0.005 %', '60 grams')
 driver.quit()
