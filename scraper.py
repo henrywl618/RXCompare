@@ -8,15 +8,15 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import ElementNotInteractableException
 
 
-service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
-options = webdriver.ChromeOptions()
-options.add_argument('--ignore-certificate-errors')
-options.add_argument('--incognito')
-options.add_argument('--headless')
-driver = webdriver.Chrome(service=service, options=options)
-driver.set_window_position(0, 0)
-driver.set_window_size(1024, 768)
-actions = ActionChains(driver)
+# service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
+# options = webdriver.ChromeOptions()
+# options.add_argument('--ignore-certificate-errors')
+# options.add_argument('--incognito')
+# options.add_argument('--headless')
+# driver = webdriver.Chrome(service=service, options=options)
+# driver.set_window_position(0, 0)
+# driver.set_window_size(1024, 768)
+# actions = ActionChains(driver)
 
 # driver.get("https://www.discountdrugnetwork.com/get-discount?drugName=Amoxicillin&zip=11416")
 # results = WebDriverWait(driver, timeout=10).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-results__item'))
@@ -27,24 +27,35 @@ class DDNSearch:
 
     def __init__(self):
         self.base_url = "https://www.discountdrugnetwork.com"
+        self.service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
+        self.options = webdriver.ChromeOptions()
+        self.options.add_argument('--ignore-certificate-errors')
+        self.options.add_argument('--incognito')
+        self.options.add_argument('--headless')
+        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        self.driver.set_window_position(0, 0)
+        self.driver.set_window_size(1024, 768)
+        self.actions = ActionChains(self.driver)
 
-    def get_drugnames(self, url, input):
-        driver.get(self.base_url)
-        drugname_input = WebDriverWait(driver, timeout=3).until(lambda d: d.find_element(by=By.CSS_SELECTOR, value='.c-search-input__drug').find_element(By.TAG_NAME, "input"))
+    def get_drugnames(self, input):
+        self.driver.get(self.base_url)
+        drugname_input = WebDriverWait(self.driver, timeout=5).until(lambda d: d.find_element(by=By.CSS_SELECTOR, value='.c-search-input__drug').find_element(By.TAG_NAME, "input"))
         drugname_input.send_keys(input)
-        drugname_results = WebDriverWait(driver, timeout=3).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-search-input__drugname'))
-            
-        return [drug.text for drug in drugname_results]
+        drugname_results = WebDriverWait(self.driver, timeout=5).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-search-input__drugname'))
+        results = [drug.text for drug in drugname_results]
+        self.driver.close()
+        print(results)
+        return results
 
 
     def get_drugforms(self, drugname, zip):
         updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
-        driver.get(updated_url)
-        page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
-        drugform_filter = driver.find_element(By.XPATH, '//div[text()="FORM"]//parent::div').find_element(By.XPATH, '//span[@class="ant-select-selection-item"]')
+        self.driver.get(updated_url)
+        page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
+        drugform_filter = self.driver.find_element(By.XPATH, '//div[text()="FORM"]//parent::div').find_element(By.XPATH, '//span[@class="ant-select-selection-item"]')
         # drugform_filter = driver.find_element(By.XPATH, '//div[@class="g-select " and .//div[text()="FORM"]]')
         drugform_filter.click()
-        formList = driver.find_element(By.CLASS_NAME, 'rc-virtual-list-holder-inner')
+        formList = self.driver.find_element(By.CLASS_NAME, 'rc-virtual-list-holder-inner')
         items = formList.find_elements(By.CLASS_NAME, 'ant-select-item')
         forms = [item.get_attribute("title") for item in items]
         print(forms)
@@ -52,17 +63,17 @@ class DDNSearch:
 
     def get_doseandqty(self, drugname, zip, form):
         updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
-        driver.get(updated_url)
-        page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
-        filters = driver.find_elements(By.CLASS_NAME, 'ant-select-selection-item')
+        self.driver.get(updated_url)
+        page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
+        filters = self.driver.find_elements(By.CLASS_NAME, 'ant-select-selection-item')
         filters[0].click()
-        form_selection = driver.find_element(By.XPATH , f'//div[@class="ant-select-item-option-content" and text()="{form}"]')
-        WebDriverWait(driver, timeout=5).until(EC.visibility_of(form_selection))
+        form_selection = self.driver.find_element(By.XPATH , f'//div[@class="ant-select-item-option-content" and text()="{form}"]')
+        WebDriverWait(self.driver, timeout=5).until(EC.visibility_of(form_selection))
         form_selection.click()
-        page = WebDriverWait(driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
+        page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
         for menu in filters:
             menu.click()
-        lists = driver.find_elements(By.CLASS_NAME, 'rc-virtual-list-holder-inner')
+        lists = self.driver.find_elements(By.CLASS_NAME, 'rc-virtual-list-holder-inner')
         entries = []
         for i in range(1,3):
             items = lists[i].find_elements(By.CLASS_NAME, 'ant-select-item')
@@ -237,6 +248,7 @@ class WellRxSearch:
 # get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP')
 
 # DDNSearch = DDNSearch()
+# DDNSearch.get_drugnames("atorv")
 # DDNSearch.get_prices("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP', '50 MCG', '16')
 
 # WellRxSearch = WellRxSearch()
@@ -244,4 +256,5 @@ class WellRxSearch:
 # WellRxSearch.get_drugforms("https://www.wellrx.com/prescriptions/", "FLUTICASONE PROPIONATE", 11416)
 # WellRxSearch.get_doseandqty("https://www.wellrx.com/prescriptions/","FLUTICASONE PROPIONATE", 11416, 'Ointment')
 # WellRxSearch.get_prices("https://www.wellrx.com/prescriptions/","FLUTICASONE PROPIONATE", 11416, 'Ointment', '0.005 %', '60 grams')
-driver.quit()
+# DDNSearch.driver.quit()
+# driver.quit()
