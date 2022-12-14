@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from scraper import DDNSearch, WellRxSearch
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 app = Flask(__name__)
 DDNSearch = DDNSearch()
@@ -29,6 +30,21 @@ def get_doseandqty():
     return jsonify(results)
 
 @app.route("/drugs/prices")
-def get_prices():
-    prices = {"wellrx":[], "ddn":[]}
-    return jsonify(prices)
+async def get_prices():
+        drug_name = request.json.get("name")
+        zip_code = request.json.get("zip")
+        form = request.json.get("form")
+        dose = request.json.get("dosage")
+        qty = request.json.get("qty")
+        output = {}
+        with ThreadPoolExecutor() as executor:
+            future1 = executor.submit( DDNSearch.get_prices, drug_name, zip_code, form, dose, qty )
+            future2 = executor.submit( WellRxSearch.get_prices, drug_name, zip_code, form, dose, qty )
+            for future in as_completed([future1, future2],timeout=20):
+                output = {**output, **future.result()}
+        # results = DDNSearch.get_prices(drug_name, zip_code, form, dose, qty)
+        # results2 = WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty)
+        # results = await asyncio.gather( DDNSearch.get_prices(drug_name, zip_code, form, dose, qty), WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty) )
+        # prices = {"DiscountDrugNetwork":await results, "WellRXSearch": await results2}
+        # prices = {"WellRXSearch": results}
+        return jsonify(output)
