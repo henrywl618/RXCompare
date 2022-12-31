@@ -3,18 +3,25 @@ from scraper import DDNSearch, WellRxSearch
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures._base import TimeoutError
 from selenium.common import NoSuchElementException
+from error import FlaskError
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 DDNSearch = DDNSearch()
 WellRxSearch = WellRxSearch()
 
 @app.errorhandler(NoSuchElementException)
 def drug_not_found(error):
-    return 'Drug/Price data cannot be found with given information', 404
+    return {"message":'Drug/Price data cannot be found with given information', "status":404}
 
 @app.errorhandler(TimeoutError)
 def timeout(error):
-    return 'Search process timed out (30s)', 500
+    return {"message":'Search process timed out (30s)', "status":500}
+
+@app.errorhandler(FlaskError)
+def handle_error(error):
+    return {"message": error.message, "status": error.status_code}
 
 @app.route("/drugs/names/<search_term>")
 def get_drug_names(search_term):
@@ -24,8 +31,8 @@ def get_drug_names(search_term):
 
 @app.route("/drugs/forms")
 def get_drug_forms():
-    drug_name = request.json.get("name")
-    zip_code = request.json.get("zip")
+    drug_name = request.args.get("name")
+    zip_code = request.args.get("zip")
     results = DDNSearch.get_drugforms(drug_name, zip_code)
     forms = {"forms":results}
     return jsonify(forms)

@@ -5,7 +5,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
+from error import FlaskError
 
 
 # service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
@@ -41,10 +42,13 @@ class DDNSearch:
         self.driver.get(self.base_url)
         drugname_input = WebDriverWait(self.driver, timeout=5).until(lambda d: d.find_element(by=By.CSS_SELECTOR, value='.c-search-input__drug').find_element(By.TAG_NAME, "input"))
         drugname_input.send_keys(input)
-        drugname_results = WebDriverWait(self.driver, timeout=5).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-search-input__drugname'))
-        results = [drug.text for drug in drugname_results]
-        print(results)
-        return results
+        try:      
+            drugname_results = WebDriverWait(self.driver, timeout=5).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-search-input__drugname'))
+            results = [drug.text for drug in drugname_results]
+            print(results)
+            return results
+        except TimeoutException:
+            raise FlaskError(message = f"No results for {input}", status_code=404)
 
 
     def get_drugforms(self, drugname, zip):
