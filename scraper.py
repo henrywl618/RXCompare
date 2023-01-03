@@ -51,8 +51,8 @@ class DDNSearch:
             raise FlaskError(message = f"No results for {input}", status_code=404)
 
 
-    def get_drugforms(self, drugname, zip):
-        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
+    def get_drugforms(self, drugname):
+        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip=11106'
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
         drugform_filter = self.driver.find_element(By.XPATH, '//div[text()="FORM"]//parent::div').find_element(By.XPATH, '//span[@class="ant-select-selection-item"]')

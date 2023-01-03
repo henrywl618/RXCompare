@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from scraper import DDNSearch, WellRxSearch
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures._base import TimeoutError
-from selenium.common import NoSuchElementException
+from selenium.common import NoSuchElementException, TimeoutException
 from error import FlaskError
 from flask_cors import CORS
 
@@ -13,7 +13,11 @@ WellRxSearch = WellRxSearch()
 
 @app.errorhandler(NoSuchElementException)
 def drug_not_found(error):
-    return {"message":'Drug/Price data cannot be found with given information', "status":404}
+    return {"message":'Drug data cannot be found with given information', "status":404}
+
+@app.errorhandler(TimeoutException)
+def timeout(error):
+    return {"message":'Search process timed out', "status":500}
 
 @app.errorhandler(TimeoutError)
 def timeout(error):
@@ -29,15 +33,15 @@ def get_drug_names(search_term):
     names = {"names":results}
     return jsonify(names)
 
-@app.route("/drugs/forms")
+@app.route("/drugs/forms", methods=['POST'])
 def get_drug_forms():
-    drug_name = request.args.get("name")
-    zip_code = request.args.get("zip")
-    results = DDNSearch.get_drugforms(drug_name, zip_code)
+    drug_name = request.json.get("name")
+    zip_code = request.json.get("zip")
+    results = DDNSearch.get_drugforms(drug_name)
     forms = {"forms":results}
     return jsonify(forms)
 
-@app.route("/drugs/doseqty")
+@app.route("/drugs/doseqty", methods=['POST'])
 def get_doseandqty():
     drug_name = request.json.get("name")
     zip_code = request.json.get("zip")
@@ -45,7 +49,7 @@ def get_doseandqty():
     results = DDNSearch.get_doseandqty(drug_name, zip_code, form)
     return jsonify(results)
 
-@app.route("/drugs/prices")
+@app.route("/drugs/prices", methods=['POST'])
 async def get_prices():
         drug_name = request.json.get("name")
         zip_code = request.json.get("zip")
