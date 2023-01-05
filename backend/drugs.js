@@ -1,6 +1,7 @@
 const db = require("./db");
 const axios = require("axios")
 const {NotFoundError, BadRequestError} = require("./expressErrors");
+const DrugScrapeWebAPIURL = "http://localhost:5000/drugs";
 
 
 /**Related functions for drugs */
@@ -136,7 +137,18 @@ class Drugs {
         return drugQty
     }
 
+    /** Add a drug(name, form)/dose relationship to the db
+     * 
+     */
     static async addDrugDose ({name, form}, dose) {
+
+        // Check for duplicate entry, if it exists, return it
+        const duplicateCheck = await db.query(
+            `SELECT qty
+                FROM quantities
+                WHERE qty=$1`, [qty]
+        )
+        if(duplicateCheck.rows[0]) return duplicateCheck.rows[0];
 
         const result = await db.query(
             `INSERT INTO drug_dose (name, form, dose)
@@ -147,6 +159,10 @@ class Drugs {
         const drugdose = result.rows[0];
         return drugdose
     }
+
+    /** Add a drug(name, form)/qty relationship to the db
+     * 
+     */
 
     static async addDrugQty ({name, form}, qty) {
 
@@ -161,24 +177,48 @@ class Drugs {
     }
 
     static async getDrugForms (name) {
+        try {
+            const results = await db.query(
+                `SELECT form FROM drugs
+                    WHERE name=$1`,
+                    [name]
+            )
+            //If data does not exist in DB, attempt to scrape data from the web and add to db. Recursively call getDrugforms to pull added data from DB
+            if(results.rows.length === 0) {
+                await Drugs.scrapeDrugForms(name);
+                return Drugs.getDrugForms(name);
+            }
+            const forms = results.rows.map(row => row.form);
+            return forms
+        } catch (err) {
+            throw new BadRequestError(err);
+        }
 
-        const results = await db.query(
-            `SELECT form FROM drugs
-                WHERE name=$1`,
-                [name]
-        )
-        const forms = results.rows.map(row => row.form);
-        return forms
     }
 
-    static async getDrugDoses ({name, form}) {
-        const results = await db.query(
-            `SELECT dose FROM drug_dose
-                WHERE name=$1 AND form=$2`,
-                [name, form]
-        )
-        const doses = results.rows.map(row => row.dose);
-        return doses
+    static async getDrugDosesQtys ({name, form}) {
+        try {
+            const doseResults = await db.query(
+                `SELECT dose FROM drug_dose
+                    WHERE name=$1 AND form=$2`,
+                    [name, form]
+            )
+            const qtyResults = await db.query(
+                `SELECT qty FROM drug_qty
+                    WHERE name=$1 and form=$2`,
+                    [name, form]
+            )
+            //If data does not exist in DB, attempt to scrape data from the web and add to db. Recursively call getDrugforms to pull added data from DB
+            if(qtyResults.rows.length === 0 || doseResults.rows.length === 0) {
+                await Drugs.scrapeDrugQtyDoses(name, form);
+                return Drugs.getDrugDosesQtys(name, form);
+            }
+            const doses = doseResults.rows.map(row => row.dose);
+            const qtys = qtyResults.rows.map(row => row.qty);
+            return { doses, qtys }
+        } catch(err) {
+            throw new BadRequestError(err);
+        }
     }
 
     static async getDrugQtys ({name, form}) {
@@ -191,18 +231,57 @@ class Drugs {
         return qtys
     }
 
+    /** Gets list of drug names matching the searchTerm from webscraper
+     * 
+     */
     static async scrapeDrugName (searchTerm) {
         const response = await axios.get(`${DrugScrapeWebAPIURL}/names/${searchTerm}`);
-        //Handles error reponses from the scraper api
-        if(response.data.message) throw new BadRequestError(response.data.message)
+        //Handles error responses from the scraper api
+        if(response.data.message) throw new BadRequestError(response.data.message);
+        const names = response.data.names;
+        return names
     }
 
-    static async scrapeDrugForms () {
-
+    /** Gets list of drug forms for a given drug name from webscraper
+     * 
+     *  Adds drug forms returned from the webscraper to the DB
+     */
+    static async scrapeDrugForms (name) {
+        try{
+            const response = await axios.post(`${DrugScrapeWebAPIURL}/forms`, { name });
+            //Handles error responses from the scraper api
+            if(response.data.message) throw new BadRequestError(response.data.message);
+            //Adds drug name and forms to DB if it doesnt exist
+            const forms = response.data.forms;
+            await Drugs.addDrugName(name);
+            for(const form of forms){
+                await Drugs.addDrugForm(form);
+                await Drugs.addDrug({name, form});
+            }
+        } catch (err) {
+            throw BadRequestError(err.message)
+        }
     }
 
-    static async scrapeDrugQtyDoses () {
-
+    static async scrapeDrugQtyDoses ( name, form ) {
+        try {
+            const response = await axios.post(`${DrugScrapeWebAPIURL}/doseqty`, { name, form })
+            //Handles error responses from the scraper api
+            if(response.data.message) throw new BadRequestError(response.data.message);
+            //Adds qtys and doses to the db
+            const qtys = response.data.qty;
+            const doses = response.data.doses;
+            for(const qty of qtys){
+                await Drugs.addQty(qty);
+                await Drugs.addDrugQty( { name, form }, qty)
+            }
+            for(const dose of doses){
+                await Drugs.addDose(dose);
+                await Drugs.addDrugDose({ name, form }, dose)
+            }
+        } catch(err) {
+            throw new BadRequestError(err.message)
+        }
     }
 
     static async scrapeDrugPrices () {

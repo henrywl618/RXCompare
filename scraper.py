@@ -64,8 +64,8 @@ class DDNSearch:
         print(forms)
         return forms
 
-    def get_doseandqty(self, drugname, zip, form):
-        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
+    def get_doseandqty(self, drugname, form):
+        updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip=11106'
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
         filters = self.driver.find_elements(By.CLASS_NAME, 'ant-select-selection-item')

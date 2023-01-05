@@ -36,7 +36,6 @@ def get_drug_names(search_term):
 @app.route("/drugs/forms", methods=['POST'])
 def get_drug_forms():
     drug_name = request.json.get("name")
-    zip_code = request.json.get("zip")
     results = DDNSearch.get_drugforms(drug_name)
     forms = {"forms":results}
     return jsonify(forms)
@@ -44,9 +43,8 @@ def get_drug_forms():
 @app.route("/drugs/doseqty", methods=['POST'])
 def get_doseandqty():
     drug_name = request.json.get("name")
-    zip_code = request.json.get("zip")
     form = request.json.get("form")
-    results = DDNSearch.get_doseandqty(drug_name, zip_code, form)
+    results = DDNSearch.get_doseandqty(drug_name, form)
     return jsonify(results)
 
 @app.route("/drugs/prices", methods=['POST'])
