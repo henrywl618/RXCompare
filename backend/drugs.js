@@ -144,9 +144,9 @@ class Drugs {
 
         // Check for duplicate entry, if it exists, return it
         const duplicateCheck = await db.query(
-            `SELECT qty
-                FROM quantities
-                WHERE qty=$1`, [qty]
+            `SELECT dose
+                FROM drug_dose
+                WHERE name=$1 AND form=$2 AND dose=$3`, [name, form, dose]
         )
         if(duplicateCheck.rows[0]) return duplicateCheck.rows[0];
 
@@ -166,6 +166,14 @@ class Drugs {
 
     static async addDrugQty ({name, form}, qty) {
 
+        // Check for duplicate entry, if it exists, return it
+        const duplicateCheck = await db.query(
+            `SELECT qty
+                FROM drug_qty
+                WHERE name=$1 AND form=$2 AND qty=$3`, [name, form, qty]
+        )
+        if(duplicateCheck.rows[0]) return duplicateCheck.rows[0];
+
         const result = await db.query(
             `INSERT INTO drug_qty (name, form, qty)
                 VALUES ($1, $2, $3)
@@ -183,10 +191,9 @@ class Drugs {
                     WHERE name=$1`,
                     [name]
             )
-            //If data does not exist in DB, attempt to scrape data from the web and add to db. Recursively call getDrugforms to pull added data from DB
+            //If data does not exist in DB, attempt to scrape data from the web and add to db and return added data
             if(results.rows.length === 0) {
-                await Drugs.scrapeDrugForms(name);
-                return Drugs.getDrugForms(name);
+                return await Drugs.scrapeDrugForms(name);
             }
             const forms = results.rows.map(row => row.form);
             return forms
@@ -208,13 +215,17 @@ class Drugs {
                     WHERE name=$1 and form=$2`,
                     [name, form]
             )
-            //If data does not exist in DB, attempt to scrape data from the web and add to db. Recursively call getDrugforms to pull added data from DB
+            console.log(qtyResults.rows.length)
+            console.log(doseResults.rows.length)
+            //If data does not exist in DB, attempt to scrape data from the web and add to db and return added data
             if(qtyResults.rows.length === 0 || doseResults.rows.length === 0) {
-                await Drugs.scrapeDrugQtyDoses(name, form);
-                return Drugs.getDrugDosesQtys(name, form);
+                console.log('inside')
+                return await Drugs.scrapeDrugQtyDoses(name, form);
             }
             const doses = doseResults.rows.map(row => row.dose);
             const qtys = qtyResults.rows.map(row => row.qty);
+            console.log(doses)
+            console.log(qtys)
             return { doses, qtys }
         } catch(err) {
             throw new BadRequestError(err);
@@ -258,6 +269,7 @@ class Drugs {
                 await Drugs.addDrugForm(form);
                 await Drugs.addDrug({name, form});
             }
+            return forms
         } catch (err) {
             throw BadRequestError(err.message)
         }
@@ -270,7 +282,7 @@ class Drugs {
             if(response.data.message) throw new BadRequestError(response.data.message);
             //Adds qtys and doses to the db
             const qtys = response.data.qty;
-            const doses = response.data.doses;
+            const doses = response.data.dosage;
             for(const qty of qtys){
                 await Drugs.addQty(qty);
                 await Drugs.addDrugQty( { name, form }, qty)
@@ -279,13 +291,20 @@ class Drugs {
                 await Drugs.addDose(dose);
                 await Drugs.addDrugDose({ name, form }, dose)
             }
+            return {qtys, doses}
         } catch(err) {
             throw new BadRequestError(err.message)
         }
     }
 
-    static async scrapeDrugPrices () {
-
+    static async scrapeDrugPrices ( {name, form, zip, dose, qty}) {
+        try {
+            const response = await axios.post(`${DrugScrapeWebAPIURL}/prices`, { name, form, zip, dose, qty })
+            if(response.data.message) throw new BadRequestError(response.data.message);
+            return response.data
+        } catch(err) {
+            throw new BadRequestError(err.message)
+        }
     }
 }
 

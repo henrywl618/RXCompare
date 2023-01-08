@@ -1,8 +1,7 @@
 const express = require("express");
 const Drugs = require("../drugs");
 const router = new express.Router();
-const axios = require("axios");
-const {NotFoundError, BadRequestError} = require("../expressErrors")
+
 
 /**GET / name => names:[]
  * 
@@ -51,12 +50,15 @@ router.post("/doseqty", async (req, res, next) => {
 /**
  * POST
  */
-router.post("/price", async (req, res, next) => {
+router.post("/prices", async (req, res, next) => {
     try {
-
+        const drugData = req.body;
+        //add json validation code
+        const { DiscountDrugNetwork, WellRx } = await Drugs.scrapeDrugPrices(drugData);
+        return res.json({DiscountDrugNetwork, WellRx})
     } catch (err) {
-        
-    }
+        next(err)
+    }   
 })
 
 module.exports = router;

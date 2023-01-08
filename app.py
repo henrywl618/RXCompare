@@ -52,7 +52,7 @@ async def get_prices():
         drug_name = request.json.get("name")
         zip_code = request.json.get("zip")
         form = request.json.get("form")
-        dose = request.json.get("dosage")
+        dose = request.json.get("dose")
         qty = request.json.get("qty")
         output = {}
         with ThreadPoolExecutor() as executor:
