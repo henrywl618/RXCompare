@@ -21,14 +21,19 @@ const PriceList = ( {name, form, zip, dose, qty} ) => {
 
     return (
         <>
-            <h4>Discount Drug Network</h4>
+        <span>
+        <h4>Discount Drug Network</h4>
             <ul>
                 {prices.DiscountDrugNetwork?.map(prices => <PharmacyCard name={prices.name} address={prices.address} price={prices.price}/>)}
             </ul>
-            <h4>WellRX</h4>
+        </span>
+        <span>
+        <h4>WellRX</h4>
             <ul>
                 {prices.WellRx?.map(prices => <PharmacyCard name={prices.name} address={prices.address} price={prices.price}/>)}
             </ul>
+        </span>
+
         </>
     )
 };
