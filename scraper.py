@@ -37,6 +37,9 @@ class DDNSearch:
         self.driver.set_window_position(0, 0)
         self.driver.set_window_size(1024, 768)
         self.actions = ActionChains(self.driver)
+    
+    def close(self):
+        self.driver.quit()
 
     def get_drugnames(self, input):
         self.driver.get(self.base_url)
@@ -140,6 +143,9 @@ class WellRxSearch:
         self.driver.set_window_position(0, 0)
         self.driver.set_window_size(1024, 768)
         self.actions = ActionChains(self.driver)
+        
+    def close(self):
+        self.driver.quit()
 
     def get_drugnames(self, input):
         self.driver.get(self.base_url)

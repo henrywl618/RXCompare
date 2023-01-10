@@ -10,8 +10,8 @@ const router = new express.Router();
 router.get("/names/:name", async (req, res, next) => {
     try {
         const name = req.params.name;
-        const names = await Drugs.scrapeDrugName(name);
-        return res.json({names})
+        const response = await Drugs.scrapeDrugName(name);
+        return res.json(response)
     } catch (err) {
         return next(err)
     }

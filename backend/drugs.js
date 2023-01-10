@@ -248,9 +248,9 @@ class Drugs {
     static async scrapeDrugName (searchTerm) {
         const response = await axios.get(`${DrugScrapeWebAPIURL}/names/${searchTerm}`);
         //Handles error responses from the scraper api
-        if(response.data.message) throw new BadRequestError(response.data.message);
+        if(response.data.status === 404) return response.data;
         const names = response.data.names;
-        return names
+        return {names}
     }
 
     /** Gets list of drug forms for a given drug name from webscraper
