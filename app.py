@@ -8,8 +8,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-DDNSearch = DDNSearch()
-WellRxSearch = WellRxSearch()
+DDNSearch1 = DDNSearch()
+WellRxSearch1 = WellRxSearch()
 
 @app.errorhandler(NoSuchElementException)
 def drug_not_found(error):
@@ -29,14 +29,14 @@ def handle_error(error):
 
 @app.route("/drugs/names/<search_term>")
 def get_drug_names(search_term):
-    results = DDNSearch.get_drugnames(search_term)
+    results = DDNSearch1.get_drugnames(search_term)
     names = {"names":results}
     return jsonify(names)
 
 @app.route("/drugs/forms", methods=['POST'])
 def get_drug_forms():
     drug_name = request.json.get("name")
-    results = DDNSearch.get_drugforms(drug_name)
+    results = DDNSearch1.get_drugforms(drug_name)
     forms = {"forms":results}
     return jsonify(forms)
 
@@ -44,7 +44,7 @@ def get_drug_forms():
 def get_doseandqty():
     drug_name = request.json.get("name")
     form = request.json.get("form")
-    results = DDNSearch.get_doseandqty(drug_name, form)
+    results = DDNSearch1.get_doseandqty(drug_name, form)
     return jsonify(results)
 
 @app.route("/drugs/prices", methods=['POST'])
@@ -56,8 +56,10 @@ async def get_prices():
         qty = request.json.get("qty")
         output = {}
         with ThreadPoolExecutor() as executor:
-            future1 = executor.submit( DDNSearch.get_prices, drug_name, zip_code, form, dose, qty )
-            future2 = executor.submit( WellRxSearch.get_prices, drug_name, zip_code, form, dose, qty )
+            DDNSearch2 = DDNSearch()
+            WellRxSearch2 = WellRxSearch()
+            future1 = executor.submit( DDNSearch2.get_prices, drug_name, zip_code, form, dose, qty )
+            future2 = executor.submit( WellRxSearch2.get_prices, drug_name, zip_code, form, dose, qty )
             for future in as_completed([future1, future2],timeout=30):
                 output = {**output, **future.result()}
         # results = DDNSearch.get_prices(drug_name, zip_code, form, dose, qty)

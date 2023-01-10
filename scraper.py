@@ -252,7 +252,7 @@ class WellRxSearch:
             name = element.find_element(By.XPATH, ".//*[@id='multipharm-loc-key' or @id='singlepharm-name']").get_attribute("innerText")
             # # address = element.find_element(By.ID, "singlepharm-address").get_attribute("innerText")
             price = element.find_element(By.CLASS_NAME, "price").get_attribute("innerText")
-            results.append( { "pharmacy_name": name, "price": price} )
+            results.append( { "name": name, "price": price} )
         print(results)
         return {"WellRx": results}
 
