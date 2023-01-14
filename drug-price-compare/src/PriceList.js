@@ -16,7 +16,7 @@ const PriceList = ( {name, form, zip, dose, qty} ) => {
         };
         // if (dataFetchedRef.current) return;
         // dataFetchedRef.current = true;
-        fetchPrices();
+        if( name && form && zip && dose && qty) fetchPrices();
     },[name, form, zip, dose, qty]);
 
     return (

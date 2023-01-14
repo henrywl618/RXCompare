@@ -8,8 +8,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-DDNSearch1 = DDNSearch()
-WellRxSearch1 = WellRxSearch()
+
 
 @app.errorhandler(NoSuchElementException)
 def drug_not_found(error):
@@ -29,28 +28,28 @@ def handle_error(error):
 
 @app.route("/drugs/names/<search_term>")
 def get_drug_names(search_term):
-    DDNSearch = DDNSearch()
+    DDNSearch1 = DDNSearch()
     results = DDNSearch1.get_drugnames(search_term)
     names = {"names":results}
-    DDNSearch.quit()
+    DDNSearch1.close()
     return jsonify(names)
 
 @app.route("/drugs/forms", methods=['POST'])
 def get_drug_forms():
-    DDNSearch = DDNSearch()
+    DDNSearch1 = DDNSearch()
     drug_name = request.json.get("name")
     results = DDNSearch1.get_drugforms(drug_name)
     forms = {"forms":results}
-    DDNSearch.quit()
+    DDNSearch1.close()
     return jsonify(forms)
 
 @app.route("/drugs/doseqty", methods=['POST'])
 def get_doseandqty():
-    DDNSearch = DDNSearch()
+    DDNSearch1 = DDNSearch()
     drug_name = request.json.get("name")
     form = request.json.get("form")
     results = DDNSearch1.get_doseandqty(drug_name, form)
-    DDNSearch.quit()
+    DDNSearch1.close()
     return jsonify(results)
 
 @app.route("/drugs/prices", methods=['POST'])
@@ -62,14 +61,14 @@ async def get_prices():
         qty = request.json.get("qty")
         output = {}
         with ThreadPoolExecutor() as executor:
-            DDNSearch = DDNSearch()
-            WellRxSearch = WellRxSearch()
-            future1 = executor.submit( DDNSearch2.get_prices, drug_name, zip_code, form, dose, qty )
-            future2 = executor.submit( WellRxSearch2.get_prices, drug_name, zip_code, form, dose, qty )
+            DDNSearch1 = DDNSearch()
+            WellRxSearch1 = WellRxSearch()
+            future1 = executor.submit( DDNSearch1.get_prices, drug_name, zip_code, form, dose, qty )
+            future2 = executor.submit( WellRxSearch1.get_prices, drug_name, zip_code, form, dose, qty )
             for future in as_completed([future1, future2],timeout=30):
                 output = {**output, **future.result()}
-            DDNSearch.quit()
-            WellRXSearch.quit()
+            DDNSearch1.close()
+            WellRxSearch1.close()
         # results = DDNSearch.get_prices(drug_name, zip_code, form, dose, qty)
         # results2 = WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty)
         # results = await asyncio.gather( DDNSearch.get_prices(drug_name, zip_code, form, dose, qty), WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty) )

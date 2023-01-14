@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import axios from "axios"; 
 import FormDoseQtySearch from "./FormDoseQtySearch";
-import SearchDropdownMenu from "./SearchDropdownMenu";
+import SearchDropdownMenuList from "./SearchDropdownMenuList";
 
 const DrugSearch = () => {
     
@@ -11,7 +11,9 @@ const DrugSearch = () => {
 
     const handleChange = (evt) => {
         const target = evt.target;
-        setFormData(oldData =>({...oldData, [target.name]: target.value}));
+        console.log(target.name||target.getAttribute('name'))
+        console.log(target.value||target.getAttribute('value'))
+        setFormData(oldData =>({...oldData, [target.getAttribute('name')]: target.getAttribute('value')}));
     };
 
     const searchName = async () => {
@@ -30,6 +32,7 @@ const DrugSearch = () => {
         setResults(response.data.names)
     };
 
+    //Added debounce to drug name searches, utilizing useEffects cleanup function
     useEffect(()=>{
         if(nameInput && nameInput.length >= 3){
             const getDrugNames = setTimeout( searchName, 600);
@@ -46,8 +49,8 @@ const DrugSearch = () => {
             <input type="text" id="zip" name="zip" onChange={handleChange} value={formData.zip}></input>
             <button >Submit</button>
         </form>
-        <SearchDropdownMenu results={results}/>
-        <FormDoseQtySearch drugName={"AMOXICILLIN"}></FormDoseQtySearch>
+        <SearchDropdownMenuList results={results} handleChange={handleChange}/>
+        <FormDoseQtySearch drugName={formData.drugName}></FormDoseQtySearch>
         </>
     )
 };

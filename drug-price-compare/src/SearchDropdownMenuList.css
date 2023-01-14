@@ -1,0 +1,13 @@
+.MuiListItemText-root {
+    width: 300px;
+    margin-left: 20px;
+    margin-right: 20px;
+    text-align: center;
+}
+
+.MuiListItemButton-root {
+    width: 300px;
+    margin-left: 20px;
+    margin-right: 20px;
+    text-align: center;
+}

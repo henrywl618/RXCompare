@@ -41,8 +41,8 @@ const FormDoseQtySearch = ( {drugName} ) => {
             setFormData( oldData => ({...oldData, forms:form}));
         };
         
-        fetchForms(drugName);
-    },[]);
+        if(drugName) fetchForms(drugName);
+    },[drugName]);
 
     return (
         <Container>

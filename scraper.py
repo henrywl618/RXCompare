@@ -206,21 +206,22 @@ class WellRxSearch:
         updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
-        #Find the drug form selection filter and click on it and select the form provided in the argument
-        forms_selection = self.driver.find_element(By.XPATH, '//button[@for="form"]')
-
-        #This webpage scrolls down and hides the filter options under the navbar after the page loads. We need to scroll to the top of the page so we can click the drug form filter, and then click on the desired drug form. Using send keys(Ctrl+Home) or other scrolling methods were too slow and forms_selection.click() was trying to click before filter was visible
-        WebDriverWait(self.driver, timeout=5).until(EC.visibility_of(forms_selection))
-        drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
-        self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
-        forms_selection.click()
-        form_selection = self.driver.find_element(By.XPATH , f'//ul[@id="form"]/li[text()="{form}"]')
-        WebDriverWait(self.driver, timeout=5).until(EC.element_to_be_clickable(form_selection))
-        form_selection.click()
-
-        #Wait for the page to load the new doses and qty of the drug form we clicked on. Tracked by waiting until a previous element goes stale, and waiting until we find the newly loaded element
-        WebDriverWait(self.driver, timeout=5).until(EC.staleness_of(form_selection))
-        WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
+        #Skip if there is only one form
+        form_list = self.driver.find_elements(By.XPATH, f'//ul[@id="form"]/li')
+        if len(form_list) > 1:
+            #Find the drug form selection filter and click on it and select the form provided in the argument
+            forms_selection = self.driver.find_element(By.XPATH, '//button[@for="form"]')
+            #This webpage scrolls down and hides the filter options under the navbar after the page loads. We need to scroll to the top of the page so we can click the drug form filter, and then click on the desired drug form. Using send keys(Ctrl+Home) or other scrolling methods were too slow and forms_selection.click() was trying to click before filter was visible
+            WebDriverWait(self.driver, timeout=10).until(EC.visibility_of(forms_selection))
+            drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
+            self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
+            forms_selection.click()
+            form_selection = self.driver.find_element(By.XPATH , f'//ul[@id="form"]/li[text()="{form}"]')
+            WebDriverWait(self.driver, timeout=10).until(EC.element_to_be_clickable(form_selection))
+            form_selection.click()
+            #Wait for the page to load the new doses and qty of the drug form we clicked on. Tracked by waiting until a previous element goes stale, and waiting until we find the newly loaded element
+            WebDriverWait(self.driver, timeout=10).until(EC.staleness_of(form_selection))
+            WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
 
         #Select the dose
         dosage_filter = self.driver.find_element(By.XPATH, '//button[@for="dosages"]')
@@ -229,12 +230,13 @@ class WellRxSearch:
         self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
         dosage_filter.click()
         dosage_selection = self.driver.find_element(By.XPATH , f'//ul[@id="dosage"]/li[text()="{dose}"]')
+        print("dose")
         # If there is only one dose, it will be non-interactable, we can just pass and move to selecting the qty
         try:
             dosage_selection.click()
             # Wait for new page reload
-            WebDriverWait(self.driver, timeout=5).until(EC.staleness_of(dosage_filter))
-            WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
+            WebDriverWait(self.driver, timeout=10).until(EC.staleness_of(dosage_filter))
+            WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
         except ElementNotInteractableException:
             pass
 
@@ -247,9 +249,10 @@ class WellRxSearch:
         qty_filter.click()
         qty_selection = self.driver.find_element(By.XPATH , f'//ul[@id="quantity"]/li[contains(text(),"{qty}")]')
         qty_selection.click()
+        print(qty)
         # Wait for new page reload
-        WebDriverWait(self.driver, timeout=5).until(EC.staleness_of(qty_filter))
-        WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
+        WebDriverWait(self.driver, timeout=10).until(EC.staleness_of(qty_filter))
+        WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
         
         #Scrape and return pharmacy/price data
         pharmacy_elements = self.driver.find_elements(By.CLASS_NAME, "pharmCard")
