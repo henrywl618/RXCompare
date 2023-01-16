@@ -11,7 +11,7 @@ CREATE TABLE doses (
 );
 
 CREATE TABLE quantities (
-    qty VARCHAR(25) PRIMARY KEY
+    qty VARCHAR(40) PRIMARY KEY
 );
 
 CREATE TABLE drugs (
@@ -34,7 +34,7 @@ CREATE TABLE drug_dose (
 CREATE TABLE drug_qty (
     name VARCHAR(40) NOT NULL, 
     form VARCHAR(25) NOT NULL,
-    qty VARCHAR(25) NOT NULL
+    qty VARCHAR(40) NOT NULL
         REFERENCES quantities ON DELETE CASCADE,
     PRIMARY KEY(name, form, qty),
     FOREIGN KEY(name, form) REFERENCES drugs(name, form)

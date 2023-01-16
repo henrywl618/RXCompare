@@ -12,6 +12,7 @@ CORS(app)
 
 @app.errorhandler(NoSuchElementException)
 def drug_not_found(error):
+    print(error)
     return {"message":'Drug data cannot be found with given information', "status":404}
 
 @app.errorhandler(TimeoutException)

@@ -1,40 +1,34 @@
-INSERT INTO drugnames (name)
-VALUES ('AMOXICILLIN');
+COPY drugnames 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_names.csv' 
+	DELIMITER ',' 
+	CSV HEADER;
 
-INSERT INTO drugforms (form)
-VALUES 	('Capsule'),
-		('Oral Suspension'),
-		('Tablet'),
-		('Chewable Tablet');
+COPY doses 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_doses (c).csv' 
+	DELIMITER ',' 
+	CSV HEADER;
 
-INSERT INTO doses (dose)
-VALUES 	('125 MG/5ML'),
-		('200 MG/5ML'),
-		('250 MG/5ML'),
-		('400 MG/5ML');
+COPY quantities 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_qtys (c).csv' 
+	DELIMITER ',' 
+	CSV HEADER;
 
-INSERT INTO quantities (qty)
-VALUES 	('75'),
-		('100'),
-		('150'),
-		('200'),
-		('300');
+COPY drugforms 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_forms (c).csv' 
+	DELIMITER ',' 
+	CSV HEADER;
 
-INSERT INTO drugs (name, form)
-VALUES ('AMOXICILLIN', 'Capsule'),
-       ('AMOXICILLIN', 'Oral Suspension'),
-       ('AMOXICILLIN', 'Tablet'),
-       ('AMOXICILLIN', 'Chewable Tablet');
+COPY drugs 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_name_form.csv' 
+	DELIMITER ',' 
+	CSV HEADER;
 
-INSERT INTO drug_dose (name, form, dose)
-VALUES 	('AMOXICILLIN', 'Oral Suspension', '125 MG/5ML'),
-		('AMOXICILLIN', 'Oral Suspension', '200 MG/5ML'),
-		('AMOXICILLIN', 'Oral Suspension', '250 MG/5ML'),
-		('AMOXICILLIN', 'Oral Suspension', '400 MG/5ML');
+COPY drug_qty 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_form_qtys (c).csv' 
+	DELIMITER ',' 
+	CSV HEADER;
 
-INSERT INTO drug_qty (name, form, qty)
-VALUES 	('AMOXICILLIN', 'Oral Suspension', '75'),
-		('AMOXICILLIN', 'Oral Suspension', '100'),
-		('AMOXICILLIN', 'Oral Suspension', '150'),
-		('AMOXICILLIN', 'Oral Suspension', '200'),
-		('AMOXICILLIN', 'Oral Suspension', '300');
+COPY drug_dose 
+	FROM '/home/henry/Projects/DrugPriceAPI/backend/csv/medication_form_dose.csv' 
+	DELIMITER ',' 
+	CSV HEADER;

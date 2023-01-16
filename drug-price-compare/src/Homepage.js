@@ -9,7 +9,7 @@ const Homepage = () => {
                 <h1>Drug Price Comparer</h1>
             </Grid>
             <Grid item xs={12} alignItems="center">
-                <MedicationSearch/>
+                <MedicationSearch drugName="" zip=""/>
             </Grid>
         </Grid>
     )

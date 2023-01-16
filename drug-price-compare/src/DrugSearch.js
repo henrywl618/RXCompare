@@ -1,11 +1,13 @@
 import {useEffect, useState} from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios"; 
 import FormDoseQtySearch from "./FormDoseQtySearch";
 import SearchDropdownMenuList from "./SearchDropdownMenuList";
 
 const DrugSearch = () => {
-    
-    const [ formData, setFormData ] = useState({ drugName: "", zip: "", form: "", dose: "", qty: ""});
+
+    const { drugName, zip } = useParams();
+    const [ formData, setFormData ] = useState({ drugName, zip, form: "", dose: "", qty: ""});
     const [ nameInput, setNameInput] = useState("");
     const [ results, setResults ] = useState( [] );
 

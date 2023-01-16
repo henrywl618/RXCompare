@@ -184,11 +184,26 @@ class Drugs {
         return drugqty
     }
 
-    static async getDrugForms (name) {
+    static async getDrugName (searchTerm) {
         try {
             const results = await db.query(
-                `SELECT form FROM drugs
-                    WHERE name=$1`,
+                `SELECT name from drugnames
+                    WHERE name LIKE UPPER('${searchTerm}'||'%')`
+            )
+            if(results.rows.length===0) return {message: `No result for ${searchTerm}`, status:404}
+            const names = results.rows.map(row => row.name)
+            return {names}
+        } catch(err) {
+            throw new BadRequestError(err)
+        }
+    }
+
+    static async getDrugForms (name) {
+        try {
+            // Get drug forms ordered by insertion order
+            const results = await db.query(
+                `SELECT form, ctid as id FROM drugs
+                    WHERE name=$1 ORDER BY id ASC`,
                     [name]
             )
             //If data does not exist in DB, attempt to scrape data from the web and add to db and return added data
@@ -207,12 +222,14 @@ class Drugs {
         try {
             const doseResults = await db.query(
                 `SELECT dose FROM drug_dose
-                    WHERE name=$1 AND form=$2`,
+                    WHERE name=$1 AND form=$2
+                    ORDER BY LENGTH(dose) ASC`,
                     [name, form]
             )
             const qtyResults = await db.query(
                 `SELECT qty FROM drug_qty
-                    WHERE name=$1 and form=$2`,
+                    WHERE name=$1 and form=$2
+                    ORDER BY LENGTH(qty) ASC`,
                     [name, form]
             )
             console.log(qtyResults.rows.length)
@@ -271,7 +288,7 @@ class Drugs {
             }
             return forms
         } catch (err) {
-            throw BadRequestError(err.message)
+            throw new BadRequestError(err.message)
         }
     }
 

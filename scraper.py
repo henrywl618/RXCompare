@@ -7,22 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 from error import FlaskError
-
-
-# service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
-# options = webdriver.ChromeOptions()
-# options.add_argument('--ignore-certificate-errors')
-# options.add_argument('--incognito')
-# options.add_argument('--headless')
-# driver = webdriver.Chrome(service=service, options=options)
-# driver.set_window_position(0, 0)
-# driver.set_window_size(1024, 768)
-# actions = ActionChains(driver)
-
-# driver.get("https://www.discountdrugnetwork.com/get-discount?drugName=Amoxicillin&zip=11416")
-# results = WebDriverWait(driver, timeout=10).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-results__item'))
-# for e in results:
-#     print(e.text)
+import re
 
 class DDNSearch:
 
@@ -92,6 +77,7 @@ class DDNSearch:
         print('start1')
         #Load the page
         updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
+        print(updated_url)
         self.driver.get(updated_url)
         #Wait for the page to load
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
@@ -163,7 +149,6 @@ class WellRxSearch:
         updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
-        self.driver.save_screenshot("page.png")
         forms_list = self.driver.find_element(by=By.XPATH, value='//ul[@id="form"]').find_elements(by=By.TAG_NAME, value='li')
         
         # need to use get_attribute to pull the innerText as ELEMENT.text attribute was returning an empty string
@@ -182,8 +167,10 @@ class WellRxSearch:
         #This webpage scrolls down and hides the filter options under the navbar after the page loads. We need to scroll to the top of the page so we can click the drug form filter, and then click on the desired drug form. Using send keys(Ctrl+Home) or other scrolling methods were too slow and forms_selection.click() was trying to click before filter was visible
         WebDriverWait(self.driver, timeout=5).until(EC.visibility_of(forms_selection))
         drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
-        self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
-        forms_selection.click()
+        # self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
+        self.actions.scroll_to_element(drug_image)
+        self.actions.click(forms_selection)
+        self.actions.perform()
         form_selection = self.driver.find_element(By.XPATH , f'//ul[@id="form"]/li[text()="{form}"]')
         WebDriverWait(self.driver, timeout=5).until(EC.element_to_be_clickable(form_selection))
         form_selection.click()
@@ -215,6 +202,7 @@ class WellRxSearch:
             WebDriverWait(self.driver, timeout=10).until(EC.visibility_of(forms_selection))
             drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
             self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
+            self.driver.save_screenshot("wellrx.png")
             forms_selection.click()
             form_selection = self.driver.find_element(By.XPATH , f'//ul[@id="form"]/li[text()="{form}"]')
             WebDriverWait(self.driver, timeout=10).until(EC.element_to_be_clickable(form_selection))
@@ -222,7 +210,6 @@ class WellRxSearch:
             #Wait for the page to load the new doses and qty of the drug form we clicked on. Tracked by waiting until a previous element goes stale, and waiting until we find the newly loaded element
             WebDriverWait(self.driver, timeout=10).until(EC.staleness_of(form_selection))
             WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
-
         #Select the dose
         dosage_filter = self.driver.find_element(By.XPATH, '//button[@for="dosages"]')
         drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
@@ -245,7 +232,6 @@ class WellRxSearch:
         drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
         ## Scroll up so we can click on the filter
         self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
-        self.driver.save_screenshot("page.png")
         qty_filter.click()
         qty_selection = self.driver.find_element(By.XPATH , f'//ul[@id="quantity"]/li[contains(text(),"{qty}")]')
         qty_selection.click()
@@ -261,27 +247,15 @@ class WellRxSearch:
             name = element.find_element(By.XPATH, ".//*[@id='multipharm-loc-key' or @id='singlepharm-name']").get_attribute("innerText")
             # # address = element.find_element(By.ID, "singlepharm-address").get_attribute("innerText")
             price = element.find_element(By.CLASS_NAME, "price").get_attribute("innerText")
-            results.append( { "name": name, "price": price} )
+            try:
+                address_el = element.find_element(By.XPATH, ".//span[@id='singlepharm-address']")
+                address = address_el.get_attribute("innerText")
+                #Remove line breaks from the string
+                address = re.sub('\n', ' ', address)
+            except:
+                address = ""
+            results.append( { "name": name, "price": price, "address": address} )
         print(results)
         return {"WellRx": results}
 
 
-
-# get_drugnames("https://www.discountdrugnetwork.com", "flutica")
-# get_drugforms("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416)
-# get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'Ointment')
-# get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'Lotion')
-# get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'Cream (g)')
-# get_doseandqty("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP')
-
-# DDNSearch = DDNSearch()
-# DDNSearch.get_drugnames("atorv")
-# DDNSearch.get_prices("https://www.discountdrugnetwork.com", "FLUTICASONE PROPIONATE", 11416, 'SPRAY SUSP', '50 MCG', '16')
-
-# WellRxSearch = WellRxSearch()
-# WellRxSearch.get_drugnames( "AMLODIP")
-# WellRxSearch.get_drugforms( "FLUTICASONE PROPIONATE", 11416)
-# WellRxSearch.get_doseandqty("FLUTICASONE PROPIONATE", 11416, 'Ointment')
-# WellRxSearch.get_prices("FLUTICASONE PROPIONATE", 11416, 'Ointment', '0.005 %', '60 grams')
-# DDNSearch.driver.quit()
-# WellRxSearch.driver.quit()

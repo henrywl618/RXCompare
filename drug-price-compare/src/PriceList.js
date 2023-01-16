@@ -1,23 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import PharmacyCard from "./PharmacyCard";
 import axios from "axios";
 
 
-const PriceList = ( {name, form, zip, dose, qty} ) => {
-
-    const [prices, setPrices] = useState({DiscountDrugNetwork:[], WellRx:[]});
-    // const dataFetchedRef = useRef(false);
-
-    useEffect(()=>{
-        const fetchPrices = async()=>{
-            const response = await axios( {url:"http://localhost:3001/drugs/prices", method:"post", data: {name, form, zip, dose, qty}});
-            const prices = response.data
-            setPrices(prices)
-        };
-        // if (dataFetchedRef.current) return;
-        // dataFetchedRef.current = true;
-        if( name && form && zip && dose && qty) fetchPrices();
-    },[name, form, zip, dose, qty]);
+const PriceList = ( {prices} ) => {
 
     return (
         <>
