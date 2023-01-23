@@ -79,7 +79,7 @@ const MedicationPage = () => {
                                     handleClick={handleClick}
                 ></FormDoseQtySearch>
             </Grid>
-            <Grid item container justifyContent="center">
+            <Grid item container justifyContent="center" sx={{ my:2 }}>
                 {results 
                     ? <PriceList results={results}></PriceList>
                     : <i class="fa-solid fa-spinner fa-spin-pulse"></i>

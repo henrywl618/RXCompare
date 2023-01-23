@@ -5,7 +5,7 @@ import PriceListContainer from "./PriceListContainer";
 const PriceList = ( {results} ) => {
 
     return (
-        <Grid container justifyContent="center" xs={12} sm={10} md={8} lg={7}>
+        <Grid container justifyContent="center" xs={12} lg={10}>
             <PriceListContainer prices={results.WellRx} name={'WellRx'}/>
             <PriceListContainer prices={results.DiscountDrugNetwork} name={'Discount Drug Network'}/>
         </Grid>
