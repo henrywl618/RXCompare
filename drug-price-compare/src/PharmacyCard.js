@@ -4,7 +4,7 @@ const PharmacyCard = ({ name, address, price}) => {
     
     return (
         <ListItem>
-            <Grid container>
+            <Grid container justifyContent="space-between">
                 <Grid item xs={8}>
                     <Grid>
                         <Typography fontWeight={'bold'}
@@ -16,7 +16,7 @@ const PharmacyCard = ({ name, address, price}) => {
                 </Grid>
                 <Grid item xs={4}>
                     <Grid>
-                        <Typography textAlign='center'
+                        <Typography textAlign='right'
                                     fontWeight='bold'>
                                     {price}
                         </Typography>

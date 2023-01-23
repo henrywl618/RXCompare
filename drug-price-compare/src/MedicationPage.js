@@ -10,15 +10,15 @@ const MedicationPage = () => {
 
     const { drugName, zip } = useParams();
     const [medication, setMedication] = useState({ drugName, zip, form: "", dose: "", qty: "", search:false});
-    const [prices, setPrices] = useState(null);
+    const [results, setResults] = useState(null);
     const [forms, setForms] = useState([]);
     const [doses, setDoses] = useState([]);
     const [qtys, setQtys] = useState([]);
 
     const fetchPrices = async({drugName, zip, form, dose, qty})=>{
         const response = await axios( {url:"http://localhost:3001/drugs/prices", method:"post", data: {name:drugName, form, zip, dose, qty}});
-        const prices = response.data
-        setPrices(prices)
+        const results = response.data
+        setResults(results)
     };
 
     const fetchDoseQty = async (name, form, search=false) => {
@@ -49,12 +49,12 @@ const MedicationPage = () => {
 
     const handleClick = (evt) => {
         const target = evt.target;
-        setPrices(null);
+        setResults(null);
         fetchPrices(medication);
     };
 
     useEffect(()=>{    
-        setPrices(null); 
+        setResults(null); 
         fetchForms(drugName);
     },[drugName]);
     
@@ -79,9 +79,9 @@ const MedicationPage = () => {
                                     handleClick={handleClick}
                 ></FormDoseQtySearch>
             </Grid>
-            <Grid item>
-                {prices 
-                    ? <PriceList prices={prices}></PriceList>
+            <Grid item container justifyContent="center">
+                {results 
+                    ? <PriceList results={results}></PriceList>
                     : <i class="fa-solid fa-spinner fa-spin-pulse"></i>
                 }
             </Grid>
