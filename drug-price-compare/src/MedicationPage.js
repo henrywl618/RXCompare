@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import FormDoseQtySearch from "./FormDoseQtySearch";
 import PriceList from "./PriceList";
 import axios from "axios";
+import { Grid } from "@mui/material";
 
 const MedicationPage = () => {
 
@@ -20,19 +21,19 @@ const MedicationPage = () => {
         setPrices(prices)
     };
 
-    const fetchDoseQty = async (name, form ) => {
+    const fetchDoseQty = async (name, form, search=false) => {
         const response = await axios( { url: "http://localhost:3001/drugs/doseqty", method: "post", data: { name, form}});
         const doses = response.data.doses;
         const qtys = response.data.qtys;
         setDoses(doses);
         setQtys(qtys);
-        setMedication( oldData => ({...oldData, form, dose:doses[0], qty:qtys[0], search:true}));
+        setMedication({ drugName, zip, form, dose:doses[0], qty:qtys[0], search});
     }; 
 
-    const fetchForms = async (name) => {
+    const fetchForms = async (name, search=true) => {
         const response = await axios( { url: "http://localhost:3001/drugs/forms", method: 'post', data: { name }});
         const form = response.data.forms[0];
-        fetchDoseQty(drugName, form);
+        fetchDoseQty(drugName, form, search);
         setForms(response.data.forms);
     };
 
@@ -46,32 +47,45 @@ const MedicationPage = () => {
         setMedication( oldData => ({...oldData, [target.name]: target.value}))
     }
 
-    useEffect(()=>{     
-        if(drugName) fetchForms(drugName);
+    const handleClick = (evt) => {
+        const target = evt.target;
+        setPrices(null);
+        fetchPrices(medication);
+    };
+
+    useEffect(()=>{    
+        setPrices(null); 
+        fetchForms(drugName);
     },[drugName]);
     
     useEffect(()=>{
-        if(medication.search) fetchPrices(medication);
-    },[medication.search]);
+        if(medication.search) fetchPrices(medication)
+    },[medication]);
 
     return (
-        <>
-            <MedicationSearch drugName={drugName} zip={zip}></MedicationSearch>
-            <FormDoseQtySearch drugName={drugName} 
-                               forms={forms} 
-                               doses={doses} 
-                               qtys={qtys} 
-                               medication={medication}
-                               setMedication={setMedication} 
-                               handleFormChange={handleFormChange}
-                               updateDoseQty={updateDoseQty}
-            ></FormDoseQtySearch>
-            {
-                prices 
+        <Grid container flexDirection="column" sx={{m:2}}>
+            <Grid item>
+                <MedicationSearch drugName={drugName} zip={zip}></MedicationSearch>
+            </Grid>
+            <Grid container item justifyContent="center">
+                <FormDoseQtySearch drugName={drugName} 
+                                    forms={forms} 
+                                    doses={doses} 
+                                    qtys={qtys} 
+                                    medication={medication}
+                                    setMedication={setMedication} 
+                                    handleFormChange={handleFormChange}
+                                    updateDoseQty={updateDoseQty}
+                                    handleClick={handleClick}
+                ></FormDoseQtySearch>
+            </Grid>
+            <Grid item>
+                {prices 
                     ? <PriceList prices={prices}></PriceList>
                     : <i class="fa-solid fa-spinner fa-spin-pulse"></i>
-            }
-        </>
+                }
+            </Grid>
+        </Grid>
     )
 };
 

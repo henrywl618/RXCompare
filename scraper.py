@@ -33,7 +33,6 @@ class DDNSearch:
         try:      
             drugname_results = WebDriverWait(self.driver, timeout=5).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='c-search-input__drugname'))
             results = [drug.text for drug in drugname_results]
-            print(results)
             return results
         except TimeoutException:
             raise FlaskError(message = f"No results for {input}", status_code=404)
@@ -49,7 +48,6 @@ class DDNSearch:
         formList = self.driver.find_element(By.CLASS_NAME, 'rc-virtual-list-holder-inner')
         items = formList.find_elements(By.CLASS_NAME, 'ant-select-item')
         forms = [item.get_attribute("title") for item in items]
-        print(forms)
         return forms
 
     def get_doseandqty(self, drugname, form):
@@ -70,17 +68,16 @@ class DDNSearch:
             items = lists[i].find_elements(By.CLASS_NAME, 'ant-select-item')
             entries.append([item.get_attribute("title") for item in items])
         output = {'dosage':entries[0], 'qty':entries[1]}
-        print(output)
         return output
 
     def get_prices(self, drugname, zip, form, dose, qty):
-        print('start1')
         #Load the page
         updated_url = f'{self.base_url}/get-discount?drugName={drugname}&zip={zip}'
         print(updated_url)
         self.driver.get(updated_url)
         #Wait for the page to load
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
+        self.driver.save_screenshot("ddnpage.png")
         #Find the drug FORM selector and click
         filters = self.driver.find_elements(By.CLASS_NAME, 'ant-select-selection-item')
         filters[0].click()
@@ -113,7 +110,6 @@ class DDNSearch:
             price_el = result.find_elements(By.XPATH, './/div[@class="c-results__price"]//p')[1]
             address = result.find_element(By.XPATH, './/div[contains(normalize-space(@class),"c-results__locations")]').get_attribute("innerText")
             output.append({"name":pharmacy_name_el.text, "price":price_el.text, "address":address})
-        print(output)
         return {"DiscountDrugNetwork": output}
 
 class WellRxSearch:
@@ -138,9 +134,6 @@ class WellRxSearch:
         drugname_input = WebDriverWait(self.driver, timeout=3).until(lambda d: d.find_element(by=By.XPATH, value='//input[@id="drugSearchInput"]'))
         drugname_input.send_keys(input)
         drugname_results = WebDriverWait(self.driver, timeout=3).until(lambda d: d.find_elements(by=By.CLASS_NAME, value='ui-menu-item-wrapper'))
-
-        for drug in drugname_results:
-            print(drug.text)
             
         return [drug.text for drug in drugname_results]
 
@@ -153,8 +146,6 @@ class WellRxSearch:
         
         # need to use get_attribute to pull the innerText as ELEMENT.text attribute was returning an empty string
         forms = [ form.get_attribute("innerText") for form in forms_list] 
-
-        print(forms)
         return forms    
 
     def get_doseandqty(self, drugname, zip, form):
@@ -185,11 +176,9 @@ class WellRxSearch:
         dosages = [li.get_attribute("innerText").strip() for li in dosage_list]
         qtys = [li.get_attribute("innerText").strip() for li in qty_list if li.get_attribute("innerText").strip() != "Custom Qty"]
         output = {"dosages": dosages, "quantities": qtys}
-        print(output)
         return output
 
     def get_prices(self, drugname, zip, form, dose, qty):
-        print('start2')
         updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
@@ -217,7 +206,6 @@ class WellRxSearch:
         self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
         dosage_filter.click()
         dosage_selection = self.driver.find_element(By.XPATH , f'//ul[@id="dosage"]/li[text()="{dose}"]')
-        print("dose")
         # If there is only one dose, it will be non-interactable, we can just pass and move to selecting the qty
         try:
             dosage_selection.click()
@@ -233,9 +221,8 @@ class WellRxSearch:
         ## Scroll up so we can click on the filter
         self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
         qty_filter.click()
-        qty_selection = self.driver.find_element(By.XPATH , f'//ul[@id="quantity"]/li[contains(text(),"{qty}")]')
+        qty_selection = self.driver.find_element(By.XPATH , f'//ul[@id="quantity"]/li[contains(text(),"{qty} ")]')
         qty_selection.click()
-        print(qty)
         # Wait for new page reload
         WebDriverWait(self.driver, timeout=10).until(EC.staleness_of(qty_filter))
         WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.XPATH, '//button[@for="dosages"]')))
@@ -255,7 +242,6 @@ class WellRxSearch:
             except:
                 address = ""
             results.append( { "name": name, "price": price, "address": address} )
-        print(results)
         return {"WellRx": results}
 
 

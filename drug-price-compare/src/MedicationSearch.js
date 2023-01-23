@@ -55,7 +55,7 @@ const MedicationSearch = ( { drugName, zip} ) => {
     return (
         <>
         <form>
-            <Grid container alignItems="center" justifyContent="center">
+            <Grid container justifyContent="center">
                 <Grid container alignItems="center" justifyContent="center" spacing={1} padding={2} sx={{ border:1, borderRadius:'5px' }} xs={11} md={8} lg={5}>
                     <Grid item xs={11} sm={6} md={7} lg={8}>
                         <TextField
@@ -83,7 +83,7 @@ const MedicationSearch = ( { drugName, zip} ) => {
                     </Grid>
                     <Grid item xs={8} sm={2}>
                         
-                        <Link to={`/prices/${formData.drugName}/${formData.zip}`}>
+                        <Link to={`/prices/${formData.drugName}/${formData.zip}`} style={{ textDecoration:'none'}}>
                             <Button variant="contained">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </Button>

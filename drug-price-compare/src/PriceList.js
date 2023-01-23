@@ -1,26 +1,25 @@
 import { useEffect, useState } from "react";
+import { Grid, Typography, List } from "@mui/material";
 import PharmacyCard from "./PharmacyCard";
-import axios from "axios";
 
 
 const PriceList = ( {prices} ) => {
 
     return (
-        <>
-        <span>
-        <h4>Discount Drug Network</h4>
-            <ul>
+        <Grid container justifyContent="center">
+        <Grid item xs={11} md={4}>
+            <Typography variant="h5" fontWeight="bold" sx={{ mt:3 }}>Discount Drug Network</Typography>
+            <List>
                 {prices.DiscountDrugNetwork?.map(prices => <PharmacyCard name={prices.name} address={prices.address} price={prices.price}/>)}
-            </ul>
-        </span>
-        <span>
-        <h4>WellRX</h4>
-            <ul>
+            </List>
+        </Grid>
+        <Grid item xs={11} md={4}>
+            <Typography variant="h5" fontWeight="bold" sx={{ mt:3 }}>WellRx</Typography>
+            <List>
                 {prices.WellRx?.map(prices => <PharmacyCard name={prices.name} address={prices.address} price={prices.price}/>)}
-            </ul>
-        </span>
-
-        </>
+            </List>
+        </Grid>
+        </Grid>
     )
 };
 

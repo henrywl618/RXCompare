@@ -64,29 +64,16 @@ async def get_prices():
         with ThreadPoolExecutor() as executor:
             DDNSearch1 = DDNSearch()
             WellRxSearch1 = WellRxSearch()
-            future1 = executor.submit( DDNSearch1.get_prices, drug_name, zip_code, form, dose, qty )
-            future2 = executor.submit( WellRxSearch1.get_prices, drug_name, zip_code, form, dose, qty )
-            for future in as_completed([future1, future2],timeout=30):
-                output = {**output, **future.result()}
-            DDNSearch1.close()
-            WellRxSearch1.close()
-        # results = DDNSearch.get_prices(drug_name, zip_code, form, dose, qty)
-        # results2 = WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty)
-        # results = await asyncio.gather( DDNSearch.get_prices(drug_name, zip_code, form, dose, qty), WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty) )
-        # prices = {"DiscountDrugNetwork":await results, "WellRXSearch": await results2}
-        # prices = {"WellRXSearch": results}
-        return jsonify(output)
+            try:
+                future1 = executor.submit( DDNSearch1.get_prices, drug_name, zip_code, form, dose, qty )
+                future2 = executor.submit( WellRxSearch1.get_prices, drug_name, zip_code, form, dose, qty )
+                for future in as_completed([future1, future2],timeout=30):
+                    output = {**output, **future.result()}
+                DDNSearch1.close()
+                WellRxSearch1.close()
+            except Exception as e:
+                DDNSearch1.close()
+                WellRxSearch1.close()
+                raise e
 
-# @app.route("/drugs/prices")
-# async def get_prices():
-#         drug_name = request.json.get("name")
-#         zip_code = request.json.get("zip")
-#         form = request.json.get("form")
-#         dose = request.json.get("dosage")
-#         qty = request.json.get("qty")
-#         results = DDNSearch.get_prices(drug_name, zip_code, form, dose, qty)
-#         results2 = WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty)
-#         # results = await asyncio.gather( DDNSearch.get_prices(drug_name, zip_code, form, dose, qty), WellRxSearch.get_prices(drug_name, zip_code, form, dose, qty) )
-#         prices = {"DiscountDrugNetwork": results, "WellRXSearch": results2}
-#         # prices = {"WellRXSearch": results}
-#         return jsonify(prices)
+        return jsonify(output)
