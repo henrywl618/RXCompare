@@ -179,7 +179,7 @@ class WellRxSearch:
         return output
 
     def get_prices(self, drugname, zip, form, dose, qty):
-        updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
+        updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}/?freshSearch=true'
         print(updated_url)
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
@@ -192,7 +192,6 @@ class WellRxSearch:
             WebDriverWait(self.driver, timeout=10).until(EC.visibility_of(forms_selection))
             drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
             self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
-            self.driver.save_screenshot("wellrx.png")
             forms_selection.click()
             form_selection = self.driver.find_element(By.XPATH , f'//ul[@id="form"]/li[text()="{form}"]')
             WebDriverWait(self.driver, timeout=10).until(EC.element_to_be_clickable(form_selection))
@@ -225,6 +224,7 @@ class WellRxSearch:
         ## Scroll up so we can click on the filter
         self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
         qty_filter.click()
+        self.driver.save_screenshot("wellrx.png")
         qty_selection = self.driver.find_element(By.XPATH , f'.//ul[@id="quantity"]/li[contains(text(),"{qty} ")]')
         qty_selection.click()
         # Wait for new page reload
