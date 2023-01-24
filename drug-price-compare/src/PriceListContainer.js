@@ -1,5 +1,5 @@
 import PharmacyCard from "./PharmacyCard";
-import { Grid, Typography, List, Button, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import { Grid, Typography, List, Button, Accordion, AccordionSummary, AccordionDetails, Divider } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { ThemeProvider } from "@mui/system";
@@ -11,7 +11,7 @@ const PriceListContainer = ({ prices, name, link }) => {
 
     return (
         <Grid item xs={12} sm={5.7} sx={{ m:0.25 }}>
-            <Accordion>
+            <Accordion defaultExpanded={true}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
                     <Grid container sx={{ px:2, py:1 }}>
                         <Grid item container xs={8} sm={12} xl={8}>
@@ -28,6 +28,7 @@ const PriceListContainer = ({ prices, name, link }) => {
                         </Grid>
                     </Grid>
                 </AccordionSummary>
+                <Divider/>
                 <AccordionDetails>
                     <Grid item >
                         <List sx={{ width:'100%' }}>

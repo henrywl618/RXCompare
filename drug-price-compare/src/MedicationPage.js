@@ -5,6 +5,7 @@ import FormDoseQtySearch from "./FormDoseQtySearch";
 import PriceList from "./PriceList";
 import axios from "axios";
 import { Grid } from "@mui/material";
+import MedicationContext from "./medicationCount";
 
 const MedicationPage = () => {
 
@@ -56,16 +57,17 @@ const MedicationPage = () => {
     useEffect(()=>{    
         setResults(null); 
         fetchForms(drugName);
-    },[drugName]);
+    },[drugName, zip]);
     
     useEffect(()=>{
         if(medication.search) fetchPrices(medication)
     },[medication]);
 
     return (
+        <MedicationContext.Provider value={medication}>
         <Grid container flexDirection="column" sx={{m:2}}>
             <Grid item>
-                <MedicationSearch drugName={drugName} zip={zip}></MedicationSearch>
+                <MedicationSearch drugName={drugName} zip={zip} setMedication={setMedication}></MedicationSearch>
             </Grid>
             <Grid container item justifyContent="center">
                 <FormDoseQtySearch drugName={drugName} 
@@ -86,6 +88,7 @@ const MedicationPage = () => {
                 }
             </Grid>
         </Grid>
+        </MedicationContext.Provider>
     )
 };
 

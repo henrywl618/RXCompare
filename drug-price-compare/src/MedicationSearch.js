@@ -5,7 +5,7 @@ import axios from "axios";
 import "./MedicationSearch.css";
 import { Link } from "react-router-dom";
 
-const MedicationSearch = ( { drugName, zip} ) => {
+const MedicationSearch = ( { drugName, zip, setMedication } ) => {
     
     const [formData, setFormData] = useState({drugName, zip, search:false})
     const [results, setResults] = useState([]);
