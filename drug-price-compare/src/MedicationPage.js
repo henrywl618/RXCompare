@@ -6,6 +6,7 @@ import PriceList from "./PriceList";
 import axios from "axios";
 import { Grid } from "@mui/material";
 import MedicationContext from "./medicationCount";
+import Error from "./Error";
 
 const MedicationPage = () => {
 
@@ -16,10 +17,15 @@ const MedicationPage = () => {
     const [doses, setDoses] = useState([]);
     const [qtys, setQtys] = useState([]);
 
-    const fetchPrices = async({drugName, zip, form, dose, qty})=>{
-        const response = await axios( {url:"http://localhost:3001/drugs/prices", method:"post", data: {name:drugName, form, zip, dose, qty}});
-        const results = response.data
-        setResults(results)
+    const fetchPrices = async({drugName, zip, form, dose, qty})=>{  
+        try {
+            const response = await axios( {url:"http://localhost:3001/drugs/prices", method:"post", data: {name:drugName, form, zip, dose, qty}});
+            const results = response.data
+            setResults(results)
+        } catch (err) {
+            const results = err.response.data
+            setResults(results)
+        }
     };
 
     const fetchDoseQty = async (name, form, search=false) => {
@@ -82,10 +88,9 @@ const MedicationPage = () => {
                 ></FormDoseQtySearch>
             </Grid>
             <Grid item container justifyContent="center" sx={{ my:2 }}>
-                {results 
-                    ? <PriceList results={results}></PriceList>
-                    : <i class="fa-solid fa-spinner fa-spin-pulse"></i>
-                }
+                { !results && <i class="fa-solid fa-spinner fa-spin-pulse"></i> }
+                { results && !results?.error && <PriceList results={results}></PriceList> }
+                { results?.error && <Error message={results.error.message} status={results.error.status}/> }
             </Grid>
         </Grid>
         </MedicationContext.Provider>
