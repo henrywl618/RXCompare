@@ -318,11 +318,28 @@ class Drugs {
         try {
             const response = await axios.post(`${DrugScrapeWebAPIURL}/prices`, { name, form, zip, dose, qty })
             if(response.data.message) throw new BadRequestError(response.data.message);
-            return response.data
+            const sortedData = Drugs.organizePrices(response.data)
+            return sortedData
         } catch(err) {
             throw new BadRequestError(err.message)
         }
     }
+
+    /** Sorts the scraped drug price data by prices, ascending and returns the lowest 10 prices for each discount card */
+    static async organizePrices( { WellRx, DiscountDrugNetwork } ){
+        WellRx.sort( (a, b) => {
+            const priceA = Number(a.price.slice(1));
+            const priceB = Number(b.price.slice(1));
+            return priceA - priceB
+        });
+        DiscountDrugNetwork.sort( (a, b) => {
+            const priceA = Number(a.price.slice(1));
+            const priceB = Number(b.price.slice(1));
+            return priceA - priceB
+        });
+
+        return { WellRx: WellRx.slice(0,10), DiscountDrugNetwork: DiscountDrugNetwork.slice(0,10)}
+    };
 }
 
 module.exports = Drugs;

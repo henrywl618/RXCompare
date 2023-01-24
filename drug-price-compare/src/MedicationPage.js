@@ -5,20 +5,21 @@ import FormDoseQtySearch from "./FormDoseQtySearch";
 import PriceList from "./PriceList";
 import axios from "axios";
 import { Grid } from "@mui/material";
+import MedicationContext from "./medicationCount";
 
 const MedicationPage = () => {
 
     const { drugName, zip } = useParams();
     const [medication, setMedication] = useState({ drugName, zip, form: "", dose: "", qty: "", search:false});
-    const [prices, setPrices] = useState(null);
+    const [results, setResults] = useState(null);
     const [forms, setForms] = useState([]);
     const [doses, setDoses] = useState([]);
     const [qtys, setQtys] = useState([]);
 
     const fetchPrices = async({drugName, zip, form, dose, qty})=>{
         const response = await axios( {url:"http://localhost:3001/drugs/prices", method:"post", data: {name:drugName, form, zip, dose, qty}});
-        const prices = response.data
-        setPrices(prices)
+        const results = response.data
+        setResults(results)
     };
 
     const fetchDoseQty = async (name, form, search=false) => {
@@ -49,23 +50,24 @@ const MedicationPage = () => {
 
     const handleClick = (evt) => {
         const target = evt.target;
-        setPrices(null);
+        setResults(null);
         fetchPrices(medication);
     };
 
     useEffect(()=>{    
-        setPrices(null); 
+        setResults(null); 
         fetchForms(drugName);
-    },[drugName]);
+    },[drugName, zip]);
     
     useEffect(()=>{
         if(medication.search) fetchPrices(medication)
     },[medication]);
 
     return (
+        <MedicationContext.Provider value={medication}>
         <Grid container flexDirection="column" sx={{m:2}}>
             <Grid item>
-                <MedicationSearch drugName={drugName} zip={zip}></MedicationSearch>
+                <MedicationSearch drugName={drugName} zip={zip} setMedication={setMedication}></MedicationSearch>
             </Grid>
             <Grid container item justifyContent="center">
                 <FormDoseQtySearch drugName={drugName} 
@@ -79,13 +81,14 @@ const MedicationPage = () => {
                                     handleClick={handleClick}
                 ></FormDoseQtySearch>
             </Grid>
-            <Grid item>
-                {prices 
-                    ? <PriceList prices={prices}></PriceList>
+            <Grid item container justifyContent="center" sx={{ my:2 }}>
+                {results 
+                    ? <PriceList results={results}></PriceList>
                     : <i class="fa-solid fa-spinner fa-spin-pulse"></i>
                 }
             </Grid>
         </Grid>
+        </MedicationContext.Provider>
     )
 };
 

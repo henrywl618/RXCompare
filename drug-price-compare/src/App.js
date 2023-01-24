@@ -9,10 +9,12 @@ import { Grid } from '@mui/material';
 function App() {
   return (
     <div className="App">
-      <Grid container>
+      <Grid container justifyContent="center">
         <BrowserRouter>
           <Navbar/>
-          <Routes/>
+          <Grid item container sx={{ maxWidth:'1980px'}}>
+            <Routes/>
+          </Grid>
         </BrowserRouter>
       </Grid>
     </div>

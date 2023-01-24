@@ -77,13 +77,12 @@ class DDNSearch:
         self.driver.get(updated_url)
         #Wait for the page to load
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
-        self.driver.save_screenshot("ddnpage.png")
         #Find the drug FORM selector and click
         filters = self.driver.find_elements(By.CLASS_NAME, 'ant-select-selection-item')
         filters[0].click()
         #Select the drug form from the dropdown list and wait for it to load
+        WebDriverWait(self.driver, timeout=10).until(EC.element_to_be_clickable((By.XPATH , f'//div[@class="ant-select-item-option-content" and text()="{form}"]')))
         form_selection = self.driver.find_element(By.XPATH , f'//div[@class="ant-select-item-option-content" and text()="{form}"]')
-        WebDriverWait(self.driver, timeout=10).until(EC.visibility_of(form_selection))
         form_selection.click()
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'c-results__item')))
         #Click on each dropdown menu to update the dropdown list
@@ -101,7 +100,8 @@ class DDNSearch:
         filters[2].click()
         qty_selection = lists[2].find_element(By.XPATH , f'.//div[@class="ant-select-item-option-content" and text()="{qty}"]')
         WebDriverWait(self.driver, timeout=10).until(EC.visibility_of(qty_selection))
-        qty_selection.click() 
+        self.driver.save_screenshot("ddnpage.png")
+        qty_selection.click()       
         #Find the drug price results once they are loaded
         results = WebDriverWait(self.driver, timeout=10).until(lambda d: d.find_elements(by=By.CSS_SELECTOR, value='.c-results__item'))
         output = []
@@ -115,7 +115,7 @@ class DDNSearch:
 class WellRxSearch:
 
     def __init__(self):
-        self.base_url = "https://www.wellrx.com/prescriptions/"
+        self.base_url = "https://www.wellrx.com/prescriptions"
         self.service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
         self.options = webdriver.ChromeOptions()
         self.options.add_argument('--ignore-certificate-errors')
@@ -180,6 +180,7 @@ class WellRxSearch:
 
     def get_prices(self, drugname, zip, form, dose, qty):
         updated_url = f'{self.base_url}/prescriptions/{drugname}/{zip}'
+        print(updated_url)
         self.driver.get(updated_url)
         page = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
         #Skip if there is only one form
@@ -203,8 +204,11 @@ class WellRxSearch:
         dosage_filter = self.driver.find_element(By.XPATH, '//button[@for="dosages"]')
         drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
         ## Scroll up so we can click on the filter
-        self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
-        dosage_filter.click()
+        self.actions.scroll_to_element(drug_image)
+        self.actions.click(dosage_filter)
+        self.actions.perform()
+        # self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
+        # dosage_filter.click()
         dosage_selection = self.driver.find_element(By.XPATH , f'//ul[@id="dosage"]/li[text()="{dose}"]')
         # If there is only one dose, it will be non-interactable, we can just pass and move to selecting the qty
         try:
@@ -221,7 +225,7 @@ class WellRxSearch:
         ## Scroll up so we can click on the filter
         self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
         qty_filter.click()
-        qty_selection = self.driver.find_element(By.XPATH , f'//ul[@id="quantity"]/li[contains(text(),"{qty} ")]')
+        qty_selection = self.driver.find_element(By.XPATH , f'.//ul[@id="quantity"]/li[contains(text(),"{qty} ")]')
         qty_selection.click()
         # Wait for new page reload
         WebDriverWait(self.driver, timeout=10).until(EC.staleness_of(qty_filter))
