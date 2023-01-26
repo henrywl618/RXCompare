@@ -62,6 +62,9 @@ const MedicationPage = () => {
 
     useEffect(()=>{    
         setResults(null); 
+        setForms([]);
+        setDoses([]);
+        setQtys([]);
         fetchForms(drugName);
     },[drugName, zip]);
     
@@ -87,8 +90,8 @@ const MedicationPage = () => {
                                     handleClick={handleClick}
                 ></FormDoseQtySearch>
             </Grid>
-            <Grid item container justifyContent="center" sx={{ my:2 }}>
-                { !results && <i class="fa-solid fa-spinner fa-spin-pulse"></i> }
+            <Grid item container justifyContent="center" sx={{ my:2}}>
+                { !results && <i class="fa-solid fa-spinner fa-spin-pulse" style={{color:"rgb(66, 135, 245)"}}></i> }
                 { results && !results?.error && <PriceList results={results}></PriceList> }
                 { results?.error && <Error message={results.error.message} status={results.error.status}/> }
             </Grid>

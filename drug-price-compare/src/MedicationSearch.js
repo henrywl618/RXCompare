@@ -3,13 +3,14 @@ import { useState, useEffect, useRef } from "react";
 import SearchDropdownMenuList from "./SearchDropdownMenuList";
 import axios from "axios";
 import "./MedicationSearch.css";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
-const MedicationSearch = ( { drugName, zip, setMedication } ) => {
+const MedicationSearch = ( { drugName, zip } ) => {
     
     const [formData, setFormData] = useState({drugName, zip, search:false})
     const [results, setResults] = useState([]);
     const [anchor, setAnchor] = useState(null);
+    const history = useHistory();
     const nameInput = useRef();
     let open = Boolean(anchor);
     const controller = new AbortController();
@@ -45,9 +46,15 @@ const MedicationSearch = ( { drugName, zip, setMedication } ) => {
         handleClose(null);
     };
 
+    const handleSubmit = () => {
+        if( formData.drugName?.length >=3 && formData.zip?.length === 5 ) {
+            history.push(`/prices/${formData.drugName}/${formData.zip}`)
+        }
+    }
+
     useEffect(()=>{
         if(formData.drugName && formData.drugName.length >= 3 && formData.search){
-            const getDrugNames = setTimeout( searchName, 600);
+            const getDrugNames = setTimeout( searchName, 900);
             return ()=> clearTimeout(getDrugNames)
         }   
     },[formData.drugName]);
@@ -56,7 +63,7 @@ const MedicationSearch = ( { drugName, zip, setMedication } ) => {
         <>
         <form>
             <Grid container justifyContent="center">
-                <Grid container alignItems="center" justifyContent="center" spacing={1} padding={2} sx={{ border:1, borderRadius:'5px' }} xs={11} md={8} lg={5}>
+                <Grid container alignItems="center" justifyContent="center" spacing={1} padding={2} sx={{ border:0, borderRadius:'5px', backgroundColor:"white" }} xs={11} md={8} lg={5}>
                     <Grid item xs={11} sm={6} md={7} lg={8}>
                         <TextField
                             id="drug-input"
@@ -82,12 +89,9 @@ const MedicationSearch = ( { drugName, zip, setMedication } ) => {
                             onChange={(evt)=>handleChange(evt,false)}/>
                     </Grid>
                     <Grid item xs={8} sm={2}>
-                        
-                        <Link to={`/prices/${formData.drugName}/${formData.zip}`} style={{ textDecoration:'none'}}>
-                            <Button variant="contained">
-                                <i class="fa-solid fa-magnifying-glass"></i>
+                            <Button variant="contained" onClick={handleSubmit}>
+                                <i class="fa-solid fa-magnifying-glass" ></i>
                             </Button>
-                        </Link>
                     </Grid>
                         <Popover
                             open={open}
