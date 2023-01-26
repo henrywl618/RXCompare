@@ -47,7 +47,7 @@ const MedicationSearch = ( { drugName, zip, setMedication } ) => {
 
     useEffect(()=>{
         if(formData.drugName && formData.drugName.length >= 3 && formData.search){
-            const getDrugNames = setTimeout( searchName, 600);
+            const getDrugNames = setTimeout( searchName, 900);
             return ()=> clearTimeout(getDrugNames)
         }   
     },[formData.drugName]);
@@ -56,7 +56,7 @@ const MedicationSearch = ( { drugName, zip, setMedication } ) => {
         <>
         <form>
             <Grid container justifyContent="center">
-                <Grid container alignItems="center" justifyContent="center" spacing={1} padding={2} sx={{ border:1, borderRadius:'5px' }} xs={11} md={8} lg={5}>
+                <Grid container alignItems="center" justifyContent="center" spacing={1} padding={2} sx={{ border:0, borderRadius:'5px', backgroundColor:"white" }} xs={11} md={8} lg={5}>
                     <Grid item xs={11} sm={6} md={7} lg={8}>
                         <TextField
                             id="drug-input"

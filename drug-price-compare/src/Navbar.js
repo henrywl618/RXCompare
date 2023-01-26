@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
     return (
         <Grid container sx={{ mb:4 }}>
-        <AppBar position="static" >
+        <AppBar position="static" sx={{ backgroundColor:"rgb(66, 135, 245)"}}>
             <Grid container justifyContent="center" sx={{ my:2}}>
                 <Grid item container sx={{ maxWidth:'1980px' }} >
                     <Link to='/' style={{ textDecoration:'none', color: 'inherit'}}>
