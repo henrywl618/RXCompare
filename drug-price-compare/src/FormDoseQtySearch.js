@@ -11,7 +11,7 @@ const FormDoseQtySearch = ( {drugName, forms, doses, qtys, medication, handleFor
     return (
         <Grid container item xs={11} md={8} lg={5} sx={{ my:2, mt:4 }}>
             <Grid container item justifyContent="left" >
-                <Typography variant="h5" fontWeight={"bold"}>{drugName}</Typography>
+                <Typography variant="h5" fontWeight={"bold"} sx={{ color:"rgb(66, 135, 245)"}}>{drugName}</Typography>
             </Grid>
             <Grid container justifyContent="space-between" direction="row">
                 <Grid container item xs={6} md={3} sx={{ my:1 }}>

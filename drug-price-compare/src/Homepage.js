@@ -28,6 +28,41 @@ const Homepage = () => {
                         </Grid>
                     </Grid>
                 </Grid>
+                <Grid item container justifyContent="center" sx={{ m:2 }}>
+                    <Grid item container md={3} direction="column">
+                        <Grid sx={{ my:2 }}>
+                            <i class="fa-solid fa-prescription-bottle-medical fa-2xl" style={{color:"rgb(66, 135, 245)"}}></i>
+                        </Grid>
+                        <Grid>
+                            <Typography variant="h5" fontWeight="bold" sx={{ color:"rgb(66, 135, 245)"}}> 1. Search for medications </Typography>
+                        </Grid>
+                        <Grid>
+                            <Typography variant="p" fontSize={"0.9rem"}> Search for your prescription medication and select your form, dose and quantity.</Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid item container md={3} direction="column">
+                        <Grid sx={{ my:2 }}>
+                            <i class="fa-solid fa-hand-holding-dollar fa-2xl" style={{color:"rgb(66, 135, 245)"}}></i>
+                        </Grid>
+                        <Grid>
+                            <Typography variant="h5" fontWeight="bold" sx={{ color:"rgb(66, 135, 245)"}}> 2. Compare prices </Typography>
+                        </Grid>
+                        <Grid>
+                            <Typography variant="p" fontSize={"0.9rem"}> Compare prices at your local pharmacy.</Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid item container md={3} direction="column">
+                        <Grid sx={{ my:2 }}>
+                            <i class="fa-solid fa-tag fa-2xl" style={{color:"rgb(66, 135, 245)"}}></i>
+                        </Grid>
+                        <Grid>
+                            <Typography variant="h5" fontWeight="bold" sx={{ color:"rgb(66, 135, 245)"}}> 3. Choose a coupon </Typography>
+                        </Grid>
+                        <Grid>
+                            <Typography variant="p" fontSize={"0.9rem"}> Select a coupon that can be used at your local pharmacy.</Typography>
+                        </Grid>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     )

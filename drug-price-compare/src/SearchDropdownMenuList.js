@@ -6,7 +6,7 @@ const SearchDropdownMenuList = ({results, handleClick}) => {
     return (
             <List>
                 {
-                    results?.length === 0 ? <ListItemText> <i class="fa-solid fa-spinner fa-spin-pulse"></i> </ListItemText> : null
+                    results?.length === 0 ? <ListItemText> <i class="fa-solid fa-spinner fa-spin-pulse" style={{color:"rgb(66, 135, 245)"}}></i> </ListItemText> : null
                 }
                 { results 
                     ? results.map(result => <ListItemButton 
