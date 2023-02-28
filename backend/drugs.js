@@ -21,7 +21,7 @@ class Drugs {
         const duplicateCheck = await db.query(
             `SELECT name
                 FROM drugnames
-                WHERE name=$1`, [drugName]
+                WHERE name=UPPER($1)`, [drugName]
         )
         if(duplicateCheck.rows[0]) return duplicateCheck.rows[0];
 
@@ -146,7 +146,7 @@ class Drugs {
         const duplicateCheck = await db.query(
             `SELECT dose
                 FROM drug_dose
-                WHERE name=$1 AND form=$2 AND dose=$3`, [name, form, dose]
+                WHERE name=UPPER($1) AND form=$2 AND dose=$3`, [name, form, dose]
         )
         if(duplicateCheck.rows[0]) return duplicateCheck.rows[0];
 
@@ -170,7 +170,7 @@ class Drugs {
         const duplicateCheck = await db.query(
             `SELECT qty
                 FROM drug_qty
-                WHERE name=$1 AND form=$2 AND qty=$3`, [name, form, qty]
+                WHERE name=UPPER($1) AND form=$2 AND qty=$3`, [name, form, qty]
         )
         if(duplicateCheck.rows[0]) return duplicateCheck.rows[0];
 
@@ -203,7 +203,7 @@ class Drugs {
             // Get drug forms ordered by insertion order
             const results = await db.query(
                 `SELECT form, ctid as id FROM drugs
-                    WHERE name=$1 ORDER BY id ASC`,
+                    WHERE name=UPPER($1) ORDER BY id ASC`,
                     [name]
             )
             //If data does not exist in DB, attempt to scrape data from the web and add to db and return added data
@@ -222,13 +222,13 @@ class Drugs {
         try {
             const doseResults = await db.query(
                 `SELECT dose FROM drug_dose
-                    WHERE name=$1 AND form=$2
+                    WHERE name=UPPER($1) AND form=$2
                     ORDER BY LENGTH(dose) ASC`,
                     [name, form]
             )
             const qtyResults = await db.query(
                 `SELECT qty FROM drug_qty
-                    WHERE name=$1 and form=$2
+                    WHERE name=UPPER($1) and form=$2
                     ORDER BY LENGTH(qty) ASC`,
                     [name, form]
             )
@@ -252,7 +252,7 @@ class Drugs {
     static async getDrugQtys ({name, form}) {
         const results = await db.query(
             `SELECT qty FROM drug_qty
-                WHERE name=$1 AND form=$2`,
+                WHERE name=UPPER($1) AND form=$2`,
                 [name, form]
         )
         const qtys = results.rows.map(row => row.qty);

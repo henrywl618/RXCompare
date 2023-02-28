@@ -107,7 +107,7 @@ class DDNSearch:
         output = []
         for result in results:
             pharmacy_name_el = result.find_element(By.XPATH, './/div[@class="c-results__pharmacyname"]')
-            price_el = result.find_elements(By.XPATH, './/div[@class="c-results__price"]//p')[1]
+            price_el = result.find_elements(By.XPATH, './/div[@class="c-results__price"]//p')[0]
             address = result.find_element(By.XPATH, './/div[contains(normalize-space(@class),"c-results__locations")]').get_attribute("innerText")
             output.append({"name":pharmacy_name_el.text, "price":price_el.text, "address":address})
         return {"DiscountDrugNetwork": output}
