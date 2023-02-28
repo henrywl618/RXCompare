@@ -28,7 +28,7 @@ const Homepage = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid item container justifyContent="center" sx={{ m:2 }}>
+                <Grid item container justifyContent="center" sx={{ m:2, mb:4 }}>
                     <Grid item container md={3} direction="column">
                         <Grid sx={{ my:2 }}>
                             <i class="fa-solid fa-prescription-bottle-medical fa-2xl" style={{color:"rgb(66, 135, 245)"}}></i>

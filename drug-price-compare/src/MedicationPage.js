@@ -51,11 +51,10 @@ const MedicationPage = () => {
 
     const updateDoseQty = (evt) => {
         const target = evt.target;
-        setMedication( oldData => ({...oldData, [target.name]: target.value}))
+        setMedication( oldData => ({...oldData, [target.name]: target.value, search:false}))
     }
 
-    const handleClick = (evt) => {
-        const target = evt.target;
+    const handleClick = () => {
         setResults(null);
         fetchPrices(medication);
     };

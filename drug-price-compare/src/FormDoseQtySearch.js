@@ -1,17 +1,13 @@
-import { useState } from "react";
 import Button from "@mui/material/Button";
-import { Select, InputLabel, FormControl, MenuItem, Container, FormLabel, Typography, Grid } from "@mui/material";
+import { Select, InputLabel, FormControl, MenuItem, Typography, Grid } from "@mui/material";
 
 
 const FormDoseQtySearch = ( {drugName, forms, doses, qtys, medication, handleFormChange, updateDoseQty, handleClick} ) => {
 
-    const [formData, setFormData] = useState({forms:forms[0], doses:doses[0], qtys:qtys[0]});
-
-
     return (
         <Grid container item xs={11} md={8} lg={5} sx={{ my:2, mt:4 }}>
             <Grid container item justifyContent="left" >
-                <Typography variant="h5" fontWeight={"bold"} sx={{ color:"rgb(66, 135, 245)"}}>{drugName}</Typography>
+                <Typography variant="h5" fontWeight={"bold"} sx={{ color:"rgb(66, 135, 245)", textTransform:"uppercase"}}>{drugName}</Typography>
             </Grid>
             <Grid container justifyContent="space-between" direction="row">
                 <Grid container item xs={6} md={3} sx={{ my:1 }}>
