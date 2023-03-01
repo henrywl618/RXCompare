@@ -57,7 +57,8 @@ const MedicationSearch = ( { drugName, zip } ) => {
         if(formData.drugName && formData.drugName.length >= 3 && formData.search){
             const getDrugNames = setTimeout( searchName, 900);
             return ()=> clearTimeout(getDrugNames)
-        }   
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps   
     },[formData.drugName]);
 
     return (

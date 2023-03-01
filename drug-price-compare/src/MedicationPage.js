@@ -69,10 +69,12 @@ const MedicationPage = () => {
         setDoses([]);
         setQtys([]);
         fetchForms(drugName);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[drugName, zip]);
     
     useEffect(()=>{
         if(medication.search) fetchPrices(medication)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[medication]);
 
     return (
