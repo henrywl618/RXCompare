@@ -41,6 +41,7 @@ const DrugSearch = () => {
             const getDrugNames = setTimeout( searchName, 600);
             return ()=> clearTimeout(getDrugNames)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[nameInput]);
 
     return (

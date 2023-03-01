@@ -24,7 +24,7 @@ const Homepage = () => {
                             Discounts available at most U.S pharmacies including:
                         </Typography>
                         <Grid item container direction="row" justifyContent="center" alignItems="center">
-                            {images.map( image => <Grid item sx={{mx:1}}> <img src={image}></img> </Grid>)}
+                            {images.map( image => <Grid item sx={{mx:1}}> <img src={image} alt={"pharmacy-images"}></img> </Grid>)}
                         </Grid>
                     </Grid>
                 </Grid>

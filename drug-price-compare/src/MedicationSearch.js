@@ -57,7 +57,8 @@ const MedicationSearch = ( { drugName, zip } ) => {
         if(formData.drugName && formData.drugName.length >= 3 && formData.search){
             const getDrugNames = setTimeout( searchName, 900);
             return ()=> clearTimeout(getDrugNames)
-        }   
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps   
     },[formData.drugName]);
 
     return (
@@ -101,8 +102,8 @@ const MedicationSearch = ( { drugName, zip } ) => {
                             className="paper"
                             anchorOrigin={{
                                     vertical:"bottom",
-                                    horizontal:"left"
-                            }}>
+                                    horizontal:"left"}}
+                            sx={{ maxHeight: "300px"}}>
                             <SearchDropdownMenuList results={results} handleClick={handleClick}/>
                         </Popover>
                 </Grid>
