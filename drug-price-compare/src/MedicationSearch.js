@@ -102,8 +102,8 @@ const MedicationSearch = ( { drugName, zip } ) => {
                             className="paper"
                             anchorOrigin={{
                                     vertical:"bottom",
-                                    horizontal:"left"
-                            }}>
+                                    horizontal:"left"}}
+                            sx={{ maxHeight: "300px"}}>
                             <SearchDropdownMenuList results={results} handleClick={handleClick}/>
                         </Popover>
                 </Grid>
