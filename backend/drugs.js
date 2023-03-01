@@ -1,7 +1,7 @@
 const db = require("./db");
 const axios = require("axios")
 const {NotFoundError, BadRequestError} = require("./expressErrors");
-const DrugScrapeWebAPIURL = "http://localhost:5000/drugs";
+const DrugScrapeWebAPIURL = process.env.APIURL || "http://localhost:5000/drugs";
 
 
 /**Related functions for drugs */

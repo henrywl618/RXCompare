@@ -7,6 +7,7 @@ import axios from "axios";
 import { Grid } from "@mui/material";
 import MedicationContext from "./medicationCount";
 import Error from "./Error";
+import { backendURL } from "./helper";
 
 const MedicationPage = () => {
 
@@ -19,7 +20,9 @@ const MedicationPage = () => {
 
     const fetchPrices = async({drugName, zip, form, dose, qty})=>{  
         try {
-            const response = await axios( {url:"http://localhost:3001/drugs/prices", method:"post", data: {name:drugName, form, zip, dose, qty}});
+            const response = await axios( {url:`${backendURL}/prices`, 
+                                           method:"post", 
+                                           data: {name:drugName, form, zip, dose, qty}});
             const results = response.data
             setResults(results)
         } catch (err) {
@@ -29,7 +32,8 @@ const MedicationPage = () => {
     };
 
     const fetchDoseQty = async (name, form, search=false) => {
-        const response = await axios( { url: "http://localhost:3001/drugs/doseqty", method: "post", data: { name, form}});
+        console.log("fetch price")
+        const response = await axios( { url: `${backendURL}/doseqty`, method: "post", data: { name, form}});
         const doses = response.data.doses;
         const qtys = response.data.qtys;
         setDoses(doses);
@@ -38,7 +42,7 @@ const MedicationPage = () => {
     }; 
 
     const fetchForms = async (name, search=true) => {
-        const response = await axios( { url: "http://localhost:3001/drugs/forms", method: 'post', data: { name }});
+        const response = await axios( { url: `${backendURL}/forms`, method: 'post', data: { name }});
         const form = response.data.forms[0];
         fetchDoseQty(drugName, form, search);
         setForms(response.data.forms);
@@ -87,6 +91,7 @@ const MedicationPage = () => {
                                     handleFormChange={handleFormChange}
                                     updateDoseQty={updateDoseQty}
                                     handleClick={handleClick}
+                                    results={results}
                 ></FormDoseQtySearch>
             </Grid>
             <Grid item container justifyContent="center" sx={{ my:2}}>

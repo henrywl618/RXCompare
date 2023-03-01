@@ -7,4 +7,6 @@ function importAll(r) {
     return r.keys().map( key => r(key))
 }
 
-export { importAll };
+const backendURL = "https://rxcompare-be-production.up.railway.app/drugs";
+
+export { importAll, backendURL };

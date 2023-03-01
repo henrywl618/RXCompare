@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import SearchDropdownMenuList from "./SearchDropdownMenuList";
 import axios from "axios";
 import "./MedicationSearch.css";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { backendURL } from "./helper";
 
 const MedicationSearch = ( { drugName, zip } ) => {
     
@@ -23,7 +24,7 @@ const MedicationSearch = ( { drugName, zip } ) => {
     const searchName = async () => {
         setResults([]);
         setAnchor(nameInput);
-        const response = await axios.get(`http://localhost:3001/drugs/names/${formData.drugName}`);
+        const response = await axios.get(`${backendURL}/names/${formData.drugName}`);
         if(response.data.error === 404) {
             setResults(null);
         } else {
