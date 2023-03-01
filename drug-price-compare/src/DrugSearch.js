@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios"; 
 import FormDoseQtySearch from "./FormDoseQtySearch";
 import SearchDropdownMenuList from "./SearchDropdownMenuList";
+import { backendURL } from "./helper";
 
 const DrugSearch = () => {
 
@@ -19,7 +20,7 @@ const DrugSearch = () => {
     };
 
     const searchName = async () => {
-            const response = await axios.get(`http://localhost:3001/drugs/names/${nameInput}`);
+            const response = await axios.get(`${backendURL}/names/${nameInput}`);
             if(response.data.error === 404) {
                 setResults(null);
             } else {
@@ -29,7 +30,7 @@ const DrugSearch = () => {
 
     const handleSubmit = async (evt) => {
         evt.preventDefault();
-        const response = await axios.get(`http://localhost:3001/drugs/names/${formData.drugName}`)
+        const response = await axios.get(`${backendURL}/names/${formData.drugName}`)
         console.log(response)
         setResults(response.data.names)
     };

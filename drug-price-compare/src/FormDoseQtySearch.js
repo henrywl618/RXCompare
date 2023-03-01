@@ -2,7 +2,7 @@ import Button from "@mui/material/Button";
 import { Select, InputLabel, FormControl, MenuItem, Typography, Grid } from "@mui/material";
 
 
-const FormDoseQtySearch = ( {drugName, forms, doses, qtys, medication, handleFormChange, updateDoseQty, handleClick} ) => {
+const FormDoseQtySearch = ( {drugName, forms, doses, qtys, medication, handleFormChange, updateDoseQty, handleClick, results} ) => {
 
     return (
         <Grid container item xs={11} md={8} lg={5} sx={{ my:2, mt:4 }}>
@@ -50,7 +50,7 @@ const FormDoseQtySearch = ( {drugName, forms, doses, qtys, medication, handleFor
                     </FormControl>
                 </Grid>
                 <Grid container item alignItems="center" justifyContent="center" xs={6} md={3} sx={{ my:1 }}>
-                        <Button variant="contained" size="small" onClick={handleClick}>
+                        <Button variant="contained" size="small" disabled={!results} onClick={handleClick}>
                             <Typography fontWeight={"bold"}>
                                 Get Prices
                             </Typography>

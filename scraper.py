@@ -8,6 +8,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 from error import FlaskError
 import re
+import urllib.parse
+import csv
+import math
+alphabets = list('abcdefghijklmnopqrstuvwxyz')
 
 class DDNSearch:
 
@@ -247,5 +251,133 @@ class WellRxSearch:
                 address = ""
             results.append( { "name": name, "price": price, "address": address} )
         return {"WellRx": results}
+
+class DrugNameScraper:
+
+    def __init__(self):
+        self.base_url = "https://www.wellrx.com/drug-savings-list"
+        self.ddn_url = "https://www.discountdrugnetwork.com/get-discount"
+        self.service = Service(executable_path="/usr/lib/chromium-browser/chromedriver")
+        self.options = webdriver.ChromeOptions()
+        self.options.add_argument('--ignore-certificate-errors')
+        self.options.add_argument('--incognito')
+        self.options.add_argument('--headless')
+        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        self.driver.set_window_position(0, 0)
+        self.driver.set_window_size(1024, 768)
+        self.actions = ActionChains(self.driver)
+
+    def get_drugnames(self):
+        with open('medication_names.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["name"])
+            for letter in alphabets:
+                self.driver.get(f'{self.base_url}/{letter}')
+                WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'drug-details-list')))
+                drug_info = self.driver.find_element(By.ID, 'drug_info').text
+                total_entries = drug_info.split(" ")[5]
+                pages = math.ceil(int(total_entries)/20)
+                for page in range(pages):
+                    self.driver.get(f'{self.base_url}/{letter}/?currpage={page}')
+                    WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located((By.CLASS_NAME,'drug-details-list')))
+                    self.driver.save_screenshot("page.png")
+                    rows = self.driver.find_elements(By.XPATH, ".//tbody/tr")
+                    print(rows)
+                    for row in rows:
+                        description = row.find_element(By.XPATH, './/div[@id="drug-name-info2"]').get_attribute("innerText").strip()
+                        print(description)
+                        if description != "There is no additional information on this drug.":
+                            name = row.find_element(By.XPATH, './/div[@id="drug-name-info1"]').text
+                            writer.writerow([name])
+        print("done")
+
+    def get_forms_dose_qty(self):
+        names = []
+        count = 0
+        with open('medication_names.csv', 'r') as m:
+            reader = csv.reader(m)
+            for row in reader:
+                names.append(row[0])
+        names = names[5073:]
+        with open('medication_forms.csv', 'a') as form_file, open('medication_doses.csv', 'a') as dose_file , open('medication_qtys.csv', 'a') as qty_file, open('medication_name_form.csv', 'a') as name_form_file, open('medication_form_dose.csv', 'a') as medication_dose_file, open('medication_form_qty.csv', 'a') as medication_qty_file:
+            writer1 = csv.writer(form_file)
+            writer2 = csv.writer(dose_file) 
+            writer3 = csv.writer(qty_file) 
+            writer4 = csv.writer(name_form_file) 
+            writer5 = csv.writer(medication_dose_file) 
+            writer6 = csv.writer(medication_qty_file) 
+            
+            # #Write headers
+            # writer1.writerow(['form'])
+            # writer2.writerow(['dose'])
+            # writer3.writerow(['qty'])
+            # writer4.writerow(['name','form'])
+            # writer5.writerow(['name','form', 'dose'])
+            # writer6.writerow(['name','form', 'qty'])
+            
+            #For each drug name, scrape (drug,form) combination, (drug, form, dose) and (drug,form, qty)
+            for name in names:
+                if "." not in name:
+                    if count >= 40:
+                        self.driver.quit()
+                        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+                        self.driver.set_window_position(0, 0)
+                        self.driver.set_window_size(1024, 768)
+                        self.actions = ActionChains(self.driver)
+                        count = 0
+                    count = count + 1
+                    encoded_name = urllib.parse.quote(name)
+                    url = f'https://www.wellrx.com/prescriptions/{encoded_name}/10001/?freshSearch=true'
+                    print(url)
+                    self.driver.get(url)
+                    try:
+                        WebDriverWait(self.driver, timeout=60).until(EC.presence_of_element_located((By.CLASS_NAME,'filter-group-menu')))
+                        self.driver.save_screenshot("page.png")
+                        forms_list = self.driver.find_element(by=By.XPATH, value='//ul[@id="form"]').find_elements(by=By.TAG_NAME, value='li')
+                        # need to use get_attribute to pull the innerText as ELEMENT.text attribute was returning an empty string
+                        forms = [ form.get_attribute("innerText") for form in forms_list] 
+                        # Add name/form combo to csv and get doses and qtys
+                        for form in forms:
+                            try:
+                                if len(forms) > 1 :
+                                    #Find the drug form selection filter and click on it and select the form provided in the argument
+                                    forms_selection = self.driver.find_element(By.XPATH, '//button[@for="form"]')
+                                    #This webpage scrolls down and hides the filter options under the navbar after the page loads. We need to scroll to the top of the page so we can click the drug form filter, and then click on the desired drug form. Using send keys(Ctrl+Home) or other scrolling methods were too slow and forms_selection.click() was trying to click before filter was visible
+                                    WebDriverWait(self.driver, timeout=60).until(EC.visibility_of(forms_selection))
+                                    drug_image = self.driver.find_element(By.CLASS_NAME, "drug-image")
+                                    self.driver.execute_script("arguments[0].scrollIntoView();", drug_image)
+
+                                    forms_selection.click()
+                                    form_selection = self.driver.find_element(By.XPATH , f'//ul[@id="form"]/li[text()="{form}"]')
+                                    self.driver.save_screenshot("page.png")
+                                    WebDriverWait(self.driver, timeout=60).until(EC.element_to_be_clickable(form_selection))
+                                    form_selection.click()
+
+                                    #Wait for the page to load the new doses and qty of the drug form we clicked on. Tracked by waiting until a previous element goes stale, and waiting until we find the newly loaded element
+                                    WebDriverWait(self.driver, timeout=60).until(EC.staleness_of(form_selection))
+                                    WebDriverWait(self.driver, timeout=60).until(EC.presence_of_element_located((By.XPATH, '//button[@for="form"]')))
+
+                                #Find all the dosage and quantity li elements and scrape the innerText and return the results
+                                dosage_list = self.driver.find_elements(By.XPATH, "//ul[@id='dosage']/li")
+                                qty_list = self.driver.find_elements(By.XPATH, "//ul[@id='quantity']/li")
+                                dosages = [li.get_attribute("innerText").strip() for li in dosage_list]
+                                qtys = [li.get_attribute("innerText").strip() for li in qty_list if li.get_attribute("innerText").strip() != "Custom Qty"]
+                                writer1.writerow([form])
+                                writer4.writerow([name,form])
+                                print(name, form, dosages, qtys)
+                                for dosage in dosages:
+                                    writer2.writerow([dosage])
+                                    writer5.writerow([name,form,dosage])
+                                for qty in qtys:
+                                    writer3.writerow([qty])
+                                    writer6.writerow([name,form,qty])
+                            except NoSuchElementException as e:
+                                print(e)
+                                break
+
+                    except Exception as e:
+                        self.driver.save_screenshot("page.png")
+                        print(e)
+                        raise e
 
 
